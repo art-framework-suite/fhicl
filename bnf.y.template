@@ -1,0 +1,138 @@
+%{
+  /* #define YYSTYPE double */
+#include <math.h>
+  int yylex();
+  int yyerror(const char*);
+%}
+
+%union
+{
+   char*                       str;
+   bool                        _bool;
+}
+
+
+/* all these things have canonical forms */
+%token REAL UNSIGNED
+%token SQUOTED DQUOTED NUM_START_STRING ALPHA_START_STRING
+%token TARGET
+%token INFINITY NIL BOOL_TOK
+%token COLON COMMA LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
+
+/* these do not have canonical forms */
+%token ENDPROLOG BEGINPROLOG
+%token REF
+
+ /* used to indicate an error has occurred */
+%token ERROR
+
+/*
+
+!make sure to fix the :digit: stuff and add the extra brackets!
+
+NOTE: SQUOTED is all printable characters, a newline, a tab
+NOTE: DQUOTED is all printable characters, bad for escaped characters
+
+recognized patterns for each of the tokens on input:
+ INFINITY = [\+\-]?infinity
+ UNSIGNED = [[:digit:]]+
+ ALPHA_START_STRING = [:alpha:][:alnum:]*    can start with underscore!
+ NUM_START_STRING = [:digit:][:alnum:]+
+ TARGET = {ALPHA_START_STRING}((\.{name})|(\[[ ]*[:digit:]*[ ]*\]))+
+ REAL = ^[-+]?((([0-9]+\.?)|([0-9]*\.[0-9]+))([eE][-+][0-9]+)?)$
+ SQUOTED = ([']).*?(?<!\\)(\\\\)*\1     just like double quoted
+ DQUOTED = (["]).*?(?<!\\)(\\\\)*\1
+ REF = (local|db)::{TARGET}|{ALPHA_START_STRING}
+
+canonical atom value representations as output:
+ infinity, +infinity -> +infinity
+ -infinity -> -infinity
+ true -> true
+ false -> false
+ nil -> nil
+ {UNSIGNED} -> abs(val)<1e6 ? val : expo_notation(val)   # note no leading +
+ {REAL} -> expo_notation(val)
+ {SQUOTED} -> "escape_special_chars(val)"
+ {DQUOTED} -> "escape_special_chars(val)"
+ complex -> (simple_number,simple_number)
+
+ NOTE: remember that valid characters for a name are [a-zA-Z0-9_]
+ NOTE: leading/trailing zeros are preserved if a number value is quoted
+
+ escape_special_chars = function to escape tabs,newlines,quotes,backslashes
+
+ expo_notation = optionally a leading negative, produce one nonzero leading digit, optionally a fraction, or/and
+        optionally followed by 'e' and an exponent with optional leading negative
+
+ EXAMPLE: 12.0 becomes 12
+ EXAMPLE: 1.5 stays 1.5
+ EXAMPLE: 1234567 becomes 1.234567e6
+ EXAMPLE: 'a\nb' becomes "a\\nb"
+ EXAMPLE: 'a^Mb' becomes "a\nb"   (^M is the control character for newline)
+
+ NOTE: exponent of 0 is never produced on output
+
+ NOTE: rules for pretty print would be nice, along with format specification.
+ NOTE: complete algorithm for pretty print is not necessary
+ NOTE: every language does not need to produce the same or any pretty print
+ NOTE: every pretty print document does need to be parsable
+
+ NOTE: hard newlines may not be handled correctly in the quoted cases
+ NOTE: string stapling (multiple quoted strings) may not be handled
+ NOTE: be sure to include language binding general rule for quoted string rep
+        for newlines and other special characters.
+
+ Is there a canonical form for the entire document? do we need it?
+ all bindings must produce a parsable ascii output of a parsed document,
+ IDs generated from the ascii output and original parsed document
+ must be the same.
+
+ The canonical form of a document should be atoms come out in canonical form.
+ Document, sequences and tables come out without newlines or tabs, with a
+ single space or a single comma used as a separator where necessary to
+ generate a valid document.
+
+ 1) document rule (top level parameter set of a parsed document)
+    zero or more name-value pairs separated by a single SPACE
+    see rule three for producing the name-value pair output
+ 2) sequence rule
+    '[', followed by zero or more values separated by a single comma, followed by ']'
+    no embedded whitespace is permitted
+ 3) table rule
+    '{', followed by zero or more name-value pairs separated by a single SPACE, followed by '}'
+    the name-value pair is produced by outputing the name, ":", followed by the value
+
+ Should TARGET be an atom.  It appears that it should not.
+
+SHA-1 calculation (incomplete section)
+
+Changes to grammar:
+ - prolog needs to be optional.
+ - an empty prolog is valid.
+ - prolog can consist of table_body (then we get the empty list)
+ - body is likely not necessary, what is needed is table_body
+ - separator be whitespace instead of comma (for table items) this
+     means table rules collapse to only using named-values
+
+ - sequence rules can be reduced, the seq_item rule can go
+ - TARGET pattern likely needed to have the * on the end changed to +
+
+With the grammar below, we assume that TARGET is scoped.  The modification
+caused by use of a target can only be in the current scope or below.
+The current scope being the enclosing table.
+
+*/
+
+%%
+
+include(bnf.y.inc)
+
+%%
+
+#include <stdio.h>
+
+int yyerror(char const* msg)
+{
+  printf("\nYYERROR called, you lose: %s\n", msg);
+  return 0;
+}

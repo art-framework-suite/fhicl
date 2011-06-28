@@ -1,0 +1,15 @@
+//Case1: References--> PASSED
+x : 5
+y : @local::x
+
+//Case2: References in a table --> PASSED
+x : 5
+y : 6
+z : 7
+tab1:{ a: @local::x b: @local::y c: @local::z }
+
+//Case3: References in a sequence --> PASSED
+x : 5
+y : 6
+z : 7
+seq1:[ @local::x, @local::y, @local::z ]

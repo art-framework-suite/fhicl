@@ -1,0 +1,539 @@
+\documentclass[twoside]{memarticle}
+\usepackage{marvosym} % to define \MVAt
+\usepackage{rail}
+
+\newcommand{\docnumber}%
+  {draft 4}
+
+\newcommand{\doctitle}%
+  {DRAFT---{\color{magenta}Specification of the Fermilab Hierarchical Configuration Language}---DRAFT}
+
+\newcommand{\shorttitle}%
+ {DRAFT---Specification of the FHiCL---DRAFT}
+
+\newcommand{\authors}%
+  {
+  Marc~Paterno \\
+  Randolph~J.~Herber
+  }
+
+\hypersetup%
+  { pdfauthor={}%
+  , pdftitle={\doctitle}%
+  , pdfkeywords={}%
+  , pdfsubject={}%
+  }
+
+\tightlists
+
+%
+% Stuff to control the behavior of rail.
+%
+\railoptions{-hia}   % \railoptions{-h}
+\railparam{\setlength{\leftmargin}{\leftmargini}}
+\railnamefont{\rmfamily\itshape\color{magenta}}
+%
+\railalias{alphac}{a-zA-Z}
+\railalias{at}{\MVAt}
+\railalias{cbrace}{\}}
+\railalias{cquote}{'}
+\railalias{cr}{\char"5C\char"5C}
+\railalias{digitc}{0-9}
+\railalias{dollar}{\$}
+\railalias{dquote}{"}
+\railalias{greater}{\textgreater}
+\railalias{hat}{\textasciicircum}
+\railalias{less}{\textless}
+%\railalias{nonzero}{1-9}
+\railalias{obrace}{\{}
+\railalias{oquote}{`}
+\railalias{printc}{printable}
+\railalias{rsolidus}{\textbackslash}
+\railalias{space}{\textvisiblespace}
+\railalias{star}{\textasteriskcentered}
+\railalias{tilde}{$\sim$}
+\railalias{uline}{\_}
+\railalias{vbar}{\textbar}
+%
+\railterm{alphac,at,cbrace,cquote,cr,dollar,dquote,greater,hat,less,obrace,oquote,rsolidus,space,star,tilde,uline,urifragment,vbar}
+
+\makeindex
+
+\begin{document}
+\topmatter
+\chapter{Introduction}
+
+\section{Purpose of this document}
+This document provides the formal specification
+for the \emph{Fermilab Hierarchical Configuration Language},
+FHiCL.
+It uses extended Backus-Naur format (EBNF) to describe the language grammar.
+The EBNF is presented as ``railroad'' diagrams.
+For purposes of pronunciation, the acronym rhythms with ``fickle."
+
+\section{Notation used in this document}
+
+Any \emph{nonterminal} is formatted in a square box, like:
+\begin{rail}
+  nonterminal;
+\end{rail}
+
+Any \emph{terminal} text is formatted in a box with rounded corners, like:
+\begin{rail}
+  'terminal';
+\end{rail}
+
+%A list of all terminals of FCL is provided in Appendix~\ref{app:terminals}
+
+Arrows are used to show the direction in which diagrams should be read.
+
+\chapter{Preprocessing}
+
+Conceptually, preprocessing is a separate processing step which occurs
+before the tokenization step and which may be and probably will be
+implemented in a separate program.
+
+\begin{rail}
+preprocessorlines : '\#' (whitespace ?) 'include' whitespace
+                    \\ dquote 'urifragment' dquote
+                    \\ (whitespace ?);
+\end{rail}
+
+Preprocessor lines are syntactically hash comments in the FHiCL.
+When discovered, the processor line will be copied to the output
+and then followed by the contents of the urifragment data entity.
+Inclusions may be nested to a minimum depth of 10.
+If there exists a FHiCL shell environment variable,
+which is a comma separated list of URI headers and file name paths,
+then a URL will be formed with each URI header from left to right
+concatenated with a `/' (if the fragment does not start already
+with a `/' and the urifragment.
+The following URI schemes may be supported:
+\texttt{file://[host]/path}, \\texttt{ftp:/},
+\\texttt{http://} and \\texttt{https://}.
+The first successful URL will be used.
+If no URL is successful, then the preprocessor line produces no output
+and no error indications.
+If there does not exist a FHiCL shell environment variable,
+then the urifragment will be interpreted as a file name
+relative to the current working directory
+if it does not begin with a `/' and
+as an absolute file name if it does begin with a `/'.
+
+\chapter{Configuration language syntax}
+
+\section{Encodings}
+
+The input will be encoded in ASCII, a seven bit code.
+In eight-bit bytes, the high-order bit will be zero.
+In strings, all 256 eight-bit codes may be presented using ASCII characters.
+A pretty printer program may represent non-printable
+bytes by octal or hexadecimal escape sequences.
+The using application is responsible for recognizing
+the format of such texts as binary data or wide
+character texts.
+
+\section{Tokenization}
+
+Conceptually, tokenization is done by selecting the token type name and
+string as the {\em first occurring longest match} in the following list
+of patterns.
+All patterns are anchored at the beginning of the remaining text.
+All {\em whitespace}, {\em hashcomments} and {\em doublesoliduscomments}
+are discarded as soon as they are recognized.
+The token type name and string are placed in a tuple.
+A vector of tuples is formed.
+
+The FHiCL is whitespace delimited and is not line oriented,
+except for the hascomments and doublesoliduscomments.
+
+There are seven keyword tokens:
+\texttt{true}, \texttt{false}, \texttt{infinity}, \texttt{PROLOG}, \texttt{END},
+\texttt{nil} and \texttt{null}.
+
+The keywords \texttt{nil} and \texttt{null} will be mapped internally
+to a single appropriate value for the implementation language.
+
+N.B., leading and trailing zeroes on numeric values are considered
+significant and are preserved by the language.
+
+If an error token is recognized, then the input is invalid.
+
+A list of sub patterns to simplify the main list of
+type names and patterns:
+
+\begin{rail} 
+octaldigit : ( '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' );
+\end{rail}
+
+\begin{rail} 
+nonzerodigit : ( '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' );
+\end{rail}
+
+\begin{rail} 
+digit : ( '0' | 'nonzerodigit' );
+\end{rail}
+
+\begin{rail} 
+hexdigit : ( digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+                   | 'A' | 'B' | 'C' | 'D' | 'E' | 'F');
+\end{rail}
+
+\begin{rail} 
+sign : ( '-' | '+' );
+\end{rail}
+
+\begin{rail} 
+optionalsign : ( sign? );
+\end{rail}
+
+\begin{rail} 
+exponent : ( ( 'E' | 'e' ) optionalsign
+             ( digit | digit digit | digit digit digit ) );
+\end{rail}
+
+\begin{rail}
+alpha : ( 'A through Z, a through z or \_' );
+\end{rail}
+
+The list of type names and patterns:
+
+\begin{rail}
+whitespace : (( space | 'tab' | 'newline' | 'newpage' )?);
+\end{rail}
+
+\begin{rail}
+hashcomments : ( '\#' (('any-character, except newline')*) );
+\end{rail}
+
+\begin{rail}
+doublesoliduscomments : ( '//' (('any-character, except newline')*) );
+\end{rail}
+
+\begin{rail}
+true : ( 'true' );
+\end{rail}
+
+\begin{rail}
+false : ( 'false' );
+\end{rail}
+
+\begin{rail}
+nil : ( 'nil' );
+\end{rail}
+
+\begin{rail}
+nil : ( 'null' );
+\end{rail}
+
+\begin{rail}
+number : ( optionalsign 'infinity' );
+\end{rail}
+
+\begin{rail}
+number : ( optionalsign ( digit +) (('.' (digit *))?) (exponent ?) );
+\end{rail}
+
+\begin{rail}
+number : ( optionalsign '.' (digit +) (exponent ?) );
+\end{rail}
+
+\begin{rail}
+number : ( sign (digit +) );
+\end{rail}
+
+\begin{rail}
+ordinal : ( (digit +) );
+\end{rail}
+
+\begin{rail}
+name: (alpha | uline) ((alpha|digit| uline) *);
+\end{rail}
+
+\begin{rail}
+string : (( '"' (('any character except a " or reverse solidus' |
+             rsolidus ('"' | rsolidus | 'r' | 'n' | 't' | 'v' |
+                       'f' | 'b' | '0' | (octaldigit octaldigit octaldigit) |
+                       (('x' | 'X') hexdigit hexdigit)) )*)
+           '"')+);
+\end{rail}
+
+\begin{rail}
+dot : '.';
+\end{rail}
+
+\begin{rail}
+atsign: at;
+\end{rail}
+
+\begin{rail}
+leftbrace: obrace;
+\end{rail}
+
+\begin{rail}
+rightbrace: cbrace;
+\end{rail}
+
+\begin{rail}
+leftbracket: '[';
+\end{rail}
+
+\begin{rail}
+rightbracket: ']';
+\end{rail}
+
+\begin{rail}
+comma: ',';
+\end{rail}
+
+\begin{rail}
+is: ':';
+\end{rail}
+
+\begin{rail}
+specifications : ((definition | override)*)
+\end{rail}
+
+\begin{rail}
+error: 'any character';
+\end{rail}
+
+\section{High-level entities}
+
+Whitespace, hashcomments and doublesolidus comments are dropped
+when recognized;
+therefore, they are not significant.
+They will not be mentioned in the following grammar rules.
+
+A sequence of strings will be concatenated.
+
+\texttt{PROLOG} keyword and \texttt{PROLOG} \texttt{END}
+keyword sequences, if present, must occur in complete sets.
+All definitions occuring within such a set are omitted from
+the output.
+
+The \emph{document} is the highest-level construct
+in FCL.
+Any implementation of an FCL parser
+processes a \emph{document}
+as a single string.
+
+An empty output is acceptable.
+
+Null is an appropriate distinct value of the parser implementation language.
+
+The output of a successful parse of a document is a
+table of definitions.
+Overrides are not included in the output table.
+An override which does not find its search target is an error.
+If multiple copies of a name occur,
+then a later occurance overrides an earlier occurance.
+An implementation may issue warning messages detailing such overrides.
+A user may choose choose to treat such warnings as errors.
+
+
+\begin{rail}
+document : ((('PROLOG' specifications 'PROLOG' 'END') | specifications)*)
+\end{rail}
+
+\begin{rail}
+	definition: name is value;
+\end{rail}
+
+\begin{rail}
+	numeric: number | integer | ordinal;
+\end{rail}
+
+\begin{rail}
+	value: atom | numeric | ( '(' numeric ',' numeric ')' ) |
+               table | sequence | reference;
+\end{rail}
+
+\begin{rail}
+	sequence: leftbracket (( value ((',' value)*) )?) rightbracket;
+\end{rail}
+
+\begin{rail}
+	table: leftbrace (( definition ((',' definition)*) )?) rightbrace;
+\end{rail}
+
+\begin{rail}
+        hname: name ('(' ('last' | ordinal) ')')?
+        \\ ((('.' name|'[' integer ']')+)?);
+\end{rail}
+
+\begin{rail}
+        reference: hname atsign ('db' | 'local');
+\end{rail}
+
+\begin{rail}
+        override: hname is (value | reference);
+\end{rail}
+
+A {\em reference} is replaced by the value referenced.
+It is an error if the value referenced does not exist.
+
+An element of type \emph{override} is used to
+change the value of an existing element in the vector of tuples
+already built.
+The tuple being modified must be named.
+The version number indexes into a subvector of tuples with that name.
+If the overrride extends a sequence and there are missing intermediate values,
+then the intermediate values are set {\em .nil}.
+
+In an {\em hname},
+the optional field immediately after the inital {\em name} field supplies
+a version value.
+If omitted, then there must be only referencable value by that name and
+that is the referenced value.
+``(last)" means the highest available version.
+
+\chapter{Configuration language semantics}
+\section{High-level result of a successful parse}
+
+The output of a successful parse of a document is a
+vector of name and value tuples.
+The user of FCL has a choice of which values in the vector are significant.
+
+When the vector or a value is {\em pretty printed},
+if an atom meets the pattern of a numeric,
+then it is printed without quotation, regardless of its original quotation.
+In the vector of tuples, all atoms are strings.
+Complex numbers are formed into strings as well.
+
+The implementation must process ``@local" references itself.
+The implementation may process ``@db" references as it chooses,
+including considering them to be errors.
+
+\section{Representation of atoms}
+In the parse results,
+all \emph{atom}s
+except for \texttt{null} and \emph{reference}s
+are represented as character strings.
+The atom \texttt{null} is represented by a 
+value specified by the binding for a given programming language.
+The resolution of \emph{reference}s is described in
+section~\ref{sec:refs} below.
+
+Each language binding
+provides its own mechanism
+for turning atoms of type \emph{integer}, \emph{real} and \emph{complex}
+from their string representation
+into the appropriate numerical representation.
+
+\section{Resolution of \emph{ref}s\label{sec:refs}}
+Atoms of type \emph{ref} are replaced
+by the value indicated by the \emph{hname} part of the \emph{ref},
+where the environment in which the \emph{hname} is evaluated is determined
+by the \texttt{db} or \texttt{here} at the end of the \emph{ref}.
+
+The presence of \texttt{here} indicates 
+that the scope in which the \emph{hname} is to be sought
+is the previously-read \emph{document} text.
+The presence of \texttt{db} indicates
+that the scope in which the \emph{hname} is evaluated
+is the single database
+to which the parser has access.
+If the parser has no access to a database,
+and a \emph{ref} which ends in \texttt{db} is encountered,
+a parse failure results.
+If,
+in the appropriate scope,
+the \emph{hname} in a \emph{ref} does not resolve to any \emph{value},
+a parse failure results.
+
+\appendix
+
+\chapter{Differences between JSON and FCL\label{app:differences}}
+The language described is,
+by intention,
+similar but not identical to the Javascript Object Notation (JSON),
+described at \url{http://www.json.org}.
+
+Where JSON uses the name \emph{object},
+we use the name \emph{table}.
+Where JSON uses the name \emph{array}
+we use the name \emph{sequence}.
+
+The configuration language differs from JSON in several ways.
+We draw special attention to the following.
+\begin{enumerate}
+
+\item JSON requires that the names of members in an object be strings,
+which in JSON are always delimited by double quotes.
+In the configuration language,
+names of members of objects are not quoted,
+and are subject to different constraints;
+approximately stated,
+names must be suitable as variable names
+in commonly-used programming languages.
+See the grammar specification below
+for an exact description of the constraints.
+
+\item JSON allows documents to contain any Unicode character.
+The configuration language restricts documents 
+to contain only printable ASCII characters.
+This choice was made for the configuration language
+because some of the languages for which we require bindings
+do not have convenient support for Unicode.
+
+\item JSON does not directly support complex numbers.
+The configuration language has direct support 
+for specification of values
+that are complex numbers.
+
+\item JSON recognizes \emph{number} as a primitive data type.
+In the configuration language,
+numbers and strings are united into a common type \emph{atom}.
+This choice was made for the configuration language
+because we need to support producing a printed representation
+for every value
+that is identical to the representation in the configuration document.
+\end{enumerate}
+
+\chapter{Processing notes for URI inclusion}
+
+\begin{enumerate}
+\item Use recursion.
+\item Arguments are:
+\begin{enumerate}
+\item File-like object to receive the output.
+\item URL to be processed.
+\item Stack of currently in-process URLs.
+\end{enumerate}
+\item If URL to be processed already is in stack,
+      then return (possibly with error indication).
+\item Add URL to stack top.
+\item Open URL, using search procedure described in {\em Preprocessing}.
+\item If URL open failed,
+      then return (possibly with error indication).
+\item Set current position to zero.
+\item Processing loop:
+\begin{enumerate}
+\item Copy lines, adding line length to position.
+\item When a include line is discovered:
+\begin{enumerate}
+\item Close URL reading.
+\item Call this routine with:
+\begin{enumerate}
+\item File-like object to receive the output.
+\item The just discovered URL to be processed.
+\item Stack of currently in-process URLs.
+\end{enumerate}
+\item Handle or ignore any error
+\item Reopen current URL and read to current position.
+\end{enumerate}
+\end{enumerate}
+\item Pop current URL from stack.
+\item Return normally to caller.
+\end{enumerate}
+
+%\chapter{Terminals\label{app:terminals}}
+%\begin{fixme}
+%	Would it be useful to have a table of all FCL terminals here?
+%	If so, what information should be in the table?	
+%\end{fixme}
+
+\printindex
+
+\end{document}

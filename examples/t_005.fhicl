@@ -1,0 +1,4 @@
+# Simple sequence
+aa: []
+bb: [ ]
+cc: [ a, 1 ]

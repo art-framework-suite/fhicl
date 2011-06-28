@@ -1,0 +1,15 @@
+#include "tests/pass/includetest.fcl"
+
+//Case2: Include on same line as expression is treated as a comment --> PASSED
+
+x : 5 #include "includetest.fcl"
+
+//Case3: Treated as a comment --> PASSED
+
+//include "includetest.fcl"
+
+//Case4: Invalid syntax -> treated as a comment --> PASSED
+#include"includetest.fcl"
+#include includetest.fcl
+#include      "includetest.fcl"
+#include        includetest.fcl

@@ -1,0 +1,4 @@
+# One of each 'type' of string.
+a : this_is_a_string
+b : 'This is also a string'
+c : "This too is a string"

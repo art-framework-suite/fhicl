@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\begin{document}
+\thispagestyle{empty}
+\section*{Purpose}
+The templating, pretty printing and abstracting (check summing) operations
+all need to use canonical representations.
+Note, nothing in this specification requires any
+particular intermediate storage format.
+Using the canonical output format as the storage format is acceptable;
+but, it specifically is {\em not} required.
+
+The symbol, \textvisiblespace, represents a character of whitespace.
+
+Unquoted numbers are in canonical representation format.
+
+\section*{Input vs Canonical output formats}
+\begin{center}
+\begin{tabular}[ht]{||p{126pt}|p{72pt}|p{152pt}||}
+\hline
+\hline
+Input & Canonical & Discussion \\
+\hline
+\hline
+\verb|"nil"|, \verb|nil|, \verb|null| & \verb|nil| & \\
+\hline
+\verb|"null"| & \verb|"null"| &
+{\raggedleft Not recognized as a nil value and remains a string.} \\
+\hline
+\verb|"true"|, \verb|true| & \verb|true| & \\
+\hline
+\verb|"false"|, \verb|false| & \verb|false| & \\
+\hline
+{\raggedleft \verb|"+infinity"|}, & \verb|+infinity| & \\
+{\raggedleft \verb|"infinity"|}, & & \\
+{\raggedleft \verb|+infinity|}, & & \\
+{\raggedleft \verb|infinity|} & & \\
+\hline
+{\raggedleft \verb|"-infinity"|, \verb|-infinity|} & \verb|-infinity| & \\
+\hline
+\verb|"777"| & \verb|777| &
+{\raggedleft String value recognized as a numeric value and becomes unquoted.}
+\\
+\hline
+\verb|"007"|, \verb|007| & \verb|007| &
+{\raggedleft Leading and trailing zeroes on numeric values are retained.} \\
+\hline
+\verb|"+007"|, \verb|+007| & \verb|+007| &
+{\raggedleft Signs on numeric values, except for the infinities are preserved.}
+\\
+\hline
+"\textvisiblespace\verb|(|\textvisiblespace\verb|01|\textvisiblespace\verb|,|\textvisiblespace\verb|2.0|\textvisiblespace\verb|)|\textvisiblespace" &
+\verb|(01,2.0)| &
+{\raggedleft
+After stripping all whitespace, if recognizable as
+a complex number per language grammar,
+then the stripped text is the canonical format.} \\
+\hline
+\end{tabular}
+\end{center}
+\end{document}

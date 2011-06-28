@@ -1,0 +1,359 @@
+\documentclass{memarticle}
+\usepackage{marvosym} % to define \MVAt
+\usepackage{rail}
+\newcommand{\docnumber}%
+  {draft 1}
+
+\newcommand{\doctitle}%
+  {DRAFT---{\color{magenta}Specification of the Fermilab Configuration Language}---DRAFT}
+
+\newcommand{\shorttitle}%
+ {DRAFT---Specification of the FCL---DRAFT}
+
+\newcommand{\authors}%
+  {
+  Marc~Paterno
+  }
+
+\hypersetup%
+  { pdfauthor={}%
+  , pdftitle={\doctitle}%
+  , pdfkeywords={}%
+  , pdfsubject={}%
+  }
+
+\tightlists
+
+%
+% Stuff to control the behavior of rail.
+%
+\railoptions{-hi}   % \railoptions{-h}
+\railparam{\setlength{\leftmargin}{\leftmargini}}
+\railnamefont{\rmfamily\itshape\color{magenta}}
+%
+\railalias{alphac}{a-zA-Z}
+\railalias{at}{\MVAt}
+\railalias{cbrace}{\}}
+\railalias{cquote}{'}
+\railalias{cr}{\char"5C\char"5C}
+\railalias{digitc}{0-9}
+\railalias{dollar}{\$}
+\railalias{dquote}{"}
+\railalias{greater}{\textgreater}
+\railalias{hat}{\textasciicircum}
+\railalias{less}{\textless}
+%\railalias{nonzero}{1-9}
+\railalias{obrace}{\{}
+\railalias{oquote}{`}
+\railalias{printc}{printable}
+\railalias{rsolidus}{\textbackslash}
+\railalias{space}{\textvisiblespace}
+\railalias{star}{\textasteriskcentered}
+\railalias{tilde}{$\sim$}
+\railalias{uline}{\_}
+\railalias{vbar}{\textbar}
+%
+\railterm{alphac,at,cbrace,cquote,cr,dollar,dquote,greater,hat,less,obrace,oquote,rsolidus,space,star,tilde,uline,vbar}
+
+\makeindex
+
+\begin{document}
+\topmatter
+\chapter{Introduction}
+
+\section{Purpose of this document}
+This document provides the formal specification
+for the \emph{Fermilab Configuration Language},
+FCL.
+It uses extended Backus-Naur formt (EBNF) to describe the language grammar.
+
+\section{Notation used in this document}
+
+Any \emph{nonterminal} is formatted in a square box, like:
+\begin{rail}
+  nonterminal;
+\end{rail}
+
+Any \emph{terminal} text is formatted in a box with rounded corners, like:
+\begin{rail}
+  'terminal';
+\end{rail}
+
+%A list of all terminals of FCL is provided in Appendix~\ref{app:terminals}
+
+Arrows are used to show the direction in which diagrams should be read.
+
+\chapter{Configuration language syntax}
+
+\section{High-level entities}
+
+For all the rules in this section,
+whitespace is allowed between any two tokens,
+and is not significant.
+
+The \emph{document} is the highest-level construct
+in FCL.
+Any implementation of an FCL parser
+processes a \emph{document}
+as if were a single string.
+
+A \emph{document} consists of a mixture of
+zero or more \emph{definitions}
+and \emph{overrides},
+and exactly one \emph{table},
+which are all comma-separated:
+\begin{rail}
+document: ((definition ',' |override ',' ) * )  table \\ (( ',' definition| ',' override) * ) 'EOF';
+\end{rail}
+
+An element of type \emph{definition} is used to
+create a new element:
+\begin{rail}
+	definition: name ':' value;
+\end{rail}
+
+An element of type \emph{override} is used to
+change the value of an existing element,
+or to create a new element in a \emph{table} or \emph{sequence}.
+\begin{rail}
+  override: hname ':' value;
+\end{rail}
+
+An element of type \emph{value} is either a \emph{table},
+a \emph{sequence},
+or an \emph{atom}:
+\begin{rail}
+value: table | sequence | atom;
+\end{rail}
+The definitions of \emph{table}, \emph{sequence} and \emph{atom} are mutually interdependent.
+
+Elements of type \emph{table} are denoted by (possibly empty) braces;
+the elements within the braces
+are \emph{definitions}
+which are separated by commas:
+\begin{rail}
+table: obrace (definition * ',') cbrace;
+\end{rail}
+
+Elements of type \emph{sequence} are denoted by (possibly empty) brackets;
+the elements within the brackets can be any value,
+and are separated by commas:
+\begin{rail}
+sequence: '[' (value * ',') ']';
+\end{rail}
+
+\section{Mid-level entities}
+
+For all rules in this section,
+whitespace is allowed only where specified by the whitespace token \emph{ws}.
+
+A \emph{name} is used to begin a \emph{definition}:
+\begin{rail}
+name: (alpha | uline) ((alpha|digit| uline) *);
+\end{rail}
+
+\break
+A hierarchical name,
+or \emph{hname},
+is used in begin an \emph{override}:
+\begin{rail}
+  hname: name (('.' name|'[' integer ']')+);
+\end{rail}
+
+The most basic unit of the configuration language is the \emph{atom}:
+\begin{rail}
+atom: ref | string | integer | real | complex | 'true' | 'false' | 'null';
+\end{rail}
+
+
+\begin{rail}
+  ref: (name|hname) at ('db'|'local');
+\end{rail}
+
+\begin{rail}
+string: dquote (char +) dquote;
+\end{rail}
+
+\begin{rail}
+integer: '-'? ((nonzero (digit *))|('0'));
+\end{rail}
+Note that a leading $+$ is not legal,
+nor is a leading 0 legal unless it is the sole character.
+
+\begin{rail}
+%real: integer ((('.' (digit +))*)|((('.' (digit +))*) (('e'|'E') ('+'|'-')? (digit+))?);
+ real: integer ( mantissa | exponent | (mantissa exponent) );
+\end{rail}
+
+\begin{rail}
+	mantissa: '.' (digit +);
+\end{rail}
+
+\begin{rail}
+	exponent: ('e'|'E') ('+'|'-')? (digit+);
+\end{rail}
+
+\begin{rail}
+complex: '(' ('ws'*) (real|integer) ('ws'*) ',' \\ ('ws'*) (real|integer) ('ws'*) ')';
+\end{rail}
+
+\section{Low-level entities}
+
+For all rules in this section,
+whitespace is not allowed between tokens.
+
+A \emph{char} is one of:
+\begin{enumerate}
+\item any ASCII character except for
+the double-quote ('') 
+or the reverse solidus (\textbackslash)
+or control characters
+(\emph{printable} characters), or
+\item an escaped double-quote or reverse solidus or solidus
+(escaping is done with a reverse solidus), or
+\item one of a number escape sequences, noted below.
+\end{enumerate}
+\begin{rail}
+char: printable|(rsolidus (dquote|'/'|'b'|'f'|'n'|'r'|'t'));
+\end{rail}
+
+\begin{rail}
+	printable: alpha | digit | punctuation | symbol;
+\end{rail}
+
+An \emph{alpha} is any of the ASCII characters \texttt{a}--\texttt{z}
+or \texttt{A}--\texttt{Z}.
+\begin{rail}
+alpha: alphac
+\end{rail}
+
+A \emph{digit} is any of the ASCII characters \texttt{0}--\texttt{9}.
+We distinguish between zero digits and nonzero digits:
+\begin{rail}
+digit: '0' | nonzero;
+\end{rail}
+\begin{rail}
+	nonzero: '1-9';	
+\end{rail}
+\begin{rail}
+	punctuation: '!' | oquote | cquote | '(' | ')' | ',' | '.' | ':' | ';' | '?' | '[' | ']' | obrace | cbrace;
+\end{rail}
+
+\begin{rail}
+  symbols: 'space' | '\#' | dollar | '\%' | '\&' | star | '+' | '-' | '/' | less | '=' | greater | vbar | at | rsolidus | hat | uline | tilde;
+\end{rail}
+
+A \emph{ws} is one of the three whitespace characters:
+\begin{rail}
+	ws: 'space' | 'tab' | 'newline';
+\end{rail}
+
+\chapter{Configuration language semantics}
+\section{High-level result of a successful parse}
+
+The result of parsing a \emph{document}
+is a single \emph{table}.
+The \emph{definition}s and \emph{override}s
+appearing before the top-level \emph{table}
+are intended to allow the user
+to supply values to be substituted into element in the \emph{table}.
+The \emph{definition}s and \emph{override}s
+appearing after the top-level \emph{table}
+are intended to allow the user
+to replace values in that table.
+
+\section{Representation of atoms}
+In the parse results,
+all \emph{atom}s
+except for \texttt{null} and \emph{ref}
+are represented
+as character strings.
+The atom \texttt{null} is represented by a 
+value specified by the binding for a given programming language.
+The resolution of \emph{ref}s is described in section~\ref{sec:refs} below.
+
+Each language binding
+provides its own mechanism
+for turning atoms of type \emph{integer}, \emph{real} and \emph{complex}
+from their string representation
+into the appropriate numerical representation.
+
+\section{Resolution of \emph{ref}s\label{sec:refs}}
+Atoms of type \emph{ref} are replaced
+by the value indicated by the \emph{hname} part of the \emph{ref},
+where the environment in which the \emph{hname} is evaluated is determined
+by the \texttt{db} or \texttt{local} at the end of the \emph{ref}.
+
+The presence of \texttt{local} indicates 
+that the scope in which the \emph{hname} is to be sought
+is the previously-read \emph{document} text.
+The presence of \texttt{db} indicates
+that the scope in which the \emph{hname} is evaluated
+is the single database
+to which the parser has access.
+If the parser has no access to a database,
+and a \emph{ref} which ends in \texttt{db} is encountered,
+a parse failure results.
+If,
+in the appropriate scope,
+the \emph{hname} in a \emph{ref} does not resolve to any \emph{value},
+a parse failure results.
+
+\appendix
+
+\chapter{Differences between JSON and FCL\label{app:differences}}
+The language described is,
+by intention,
+similar but not identical to the Javascript Object Notation (JSON),
+described at \url{http://www.json.org}.
+
+Where JSON uses the name \emph{object},
+we use the name \emph{table}.
+Where JSON uses the name \emph{array}
+we use the name \emph{sequence}.
+
+The configuration language differs from JSON in several ways.
+We draw special attention to the following.
+\begin{enumerate}
+
+\item JSON requires that the names of members in an object be strings,
+which in JSON are always delimited by double quotes.
+In the configuration language,
+names of members of objects are not quoted,
+and are subject to different constraints;
+approximately stated,
+names must be suitable as variable names
+in commonly-used programming languages.
+See the grammar specification below
+for an exact description of the constraints.
+
+\item JSON allows documents to contain any Unicode character.
+The configuration language restricts documents 
+to contain only printable ASCII characters.
+This choice was made for the configuration language
+because some of the languages for which we require bindings
+do not have convenient support for Unicode.
+
+\item JSON does not directly support complex numbers.
+The configuration language has direct support 
+for specification of values
+that are complex numbers.
+
+\item JSON recognizes \emph{number} as a primitive data type.
+In the configuration language,
+numbers and strings are united into a common type \emph{atom}.
+This choice was made for the configuration language
+because we need to support producing a printed representation
+for every value
+that is identical to the representation in the configuration document.
+\end{enumerate}
+
+%\chapter{Terminals\label{app:terminals}}
+%\begin{fixme}
+%	Would it be useful to have a table of all FCL terminals here?
+%	If so, what information should be in the table?	
+%\end{fixme}
+
+\printindex
+
+\end{document}
