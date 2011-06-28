@@ -1,0 +1,496 @@
+\documentclass{memarticle}
+\usepackage{marvosym} % to define \MVAt
+\newcommand{\docnumber}%
+  {draft 2}
+
+\newcommand{\doctitle}%
+  {DRAFT---{\color{magenta}Specification of the Fermilab Hierarchical Configuration Language}---DRAFT}
+
+\newcommand{\shorttitle}%
+ {DRAFT---Specification of the FHiCL---DRAFT}
+
+\newcommand{\authors}%
+  {
+  Ryan Putz
+  } 
+
+\hypersetup%
+  { pdfauthor={}%
+  , pdftitle={\doctitle}%
+  , pdfkeywords={}%
+  , pdfsubject={}%
+  }
+
+\tightlists
+
+\makeindex
+
+\begin{document}
+\topmatter
+\setlength{\parindent}{0in}
+% 	Title stuff
+\title{Grammar Specification}
+\author{Jim~Kowalkowski \\ 
+	Marc~Paterno}
+\maketitle
+
+%	Body of document
+
+\section{Introduction}
+	
+	\subsection{Purpose}
+	{
+		This document provides the formal specification
+		for the \emph{Fermilab Hierarchical Configuration Language}, FHiCL.
+		This specification includes several aspects of FHiCL:
+		\begin{itemize}
+			\item User Requirements 
+			\item Definitions of Structural Elements
+			\item Canonical Value Representations
+			\item Description of Valid Syntactical Grammar
+		\end{itemize}
+	}
+
+	\subsection{Rationale}
+	{
+		FHiCL was developed in order to produce
+		a standard language for the storage,
+		communication, 
+		and manipulation
+		of scientific parameter sets.
+  		%Why does this project exist?
+	}
+	
+	\subsection{Scope of This Facility}
+	{
+		A common storage language was needed 
+		in order to produce language bindings 
+		for the various programming languages in use 
+		at this facility.
+		Having these bindings would allow parameter sets
+		stored using FHiCL
+		to be loaded 
+		and manipulated in multiple programming environments.
+  		%What does this include? What does it not include?
+	}
+	
+\section{User Requirements}
+
+	Representatives from LQCD, mu2e, NOvA, and JDEM contributed to the requirements 
+	of this language.
+
+	\begin{itemize}
+	\item allowable special characters within string values are newline, tab
+	\item values that are \emph{simple words} and without whitespace do not need to be quoted
+	\item single quoted values are read verbatim (no escape processing)
+	\item value that are double quoted can contained escaped special characters, double quotes and backslashes
+	\item two tables are the same when their hash code is the same (the byte sequences fed into the hash must be identical)
+	\item the canonical representation of an atom is a sequence of printable characters
+	\item values of true and ``true'' are identical
+	\item every atom can be requested in canonical string form
+	\item to include leading or trailing zeros in a any number, the number must be quoted
+	\item the small range of a real or integer value is 1,000,000
+	\item real number with no fraction will be converted to integer format if within the small range
+	\item a canonical real has no leading zeros in exponent or fraction, lower case e, with plus or minus
+	\item canonical integers have no leading zeros
+	\item null is not supported
+	\item infinity, +infinity becomes ``infinity'', 
+	\item ``infinity'' stays ``infinity''
+	\item -infinity is support
+	\item a leading $+$ is not legal,
+	\item a leading 0 is not legal unless it is the sole character.
+	\item adding a double to a parameter set programmatically will have a rule that specified how it will be done
+	\item 00.000E+000 will be ``0.0'' in canonical form
+	\item any exponent as e+0 will be stripped in the canonical form
+	\item -0.0 retains the negative
+	\item nil and ``nil'' are the same thing
+	\item string concatenation operations are permitted, but only quoted string values
+	\item no unquoted white space is permitted
+	\item quotes for string values can be left out if the string value has no white space and is ``simple''
+	\end{itemize}
+	
+\section{FHiCL Syntax}
+
+	The FHiCL syntax is defined by the following bison grammar:
+	\begin{verbatim}
+		\import{"bnf.y"}
+	\end{verbatim}
+
+	In this grammar,
+	all uppercase names denote tokens.
+	These tokens are defined by the following flex specification:
+	%true and false are both tokens, and yet are all lowercase characters
+	\begin{verbatim}
+	\include{"bnf.l"}
+	\end{verbatim}
+	\subsection{Preprocssor Directives}
+		\subsubsection{Includes}
+			In order to combine multiple files into a single resulting document,
+			an \emph{include} statement is used to tell which file's values should be added to the document.
+			A FHiCL \#include statement differs from the C++ \#include statement 
+			in that the FHiCL \#include acts 
+			more asa union of two documents
+			, as opposed to just allowing one file to access another.
+			The \emph{include} statement syntax is as follows:
+			\begin{verbatim}
+				#include "filename.ext"
+			\end{verbatim}
+			\vspace{1mm}
+			\par
+			Where the quoted string "filename.ext" represents the file name and file extension of the included file.
+			\vspace{1mm}
+			\par
+			\bf NOTE: \rm There is exactly one space between '\#include' and 'filename.ext'.
+			Also, the filname must be enclosed in double quotes.
+			If there is multiple spaces and/or no double quotes, 
+			the include statement will be treated as a comment.
+			\par
+			\bf NOTE: \rm Circular includes 
+			and repetitive includes 
+			are \emph{not} supported and should be checked for by the parser.
+			\par
+			\bf NOTE: \rm Included values can override existing values 
+			if both definition's names match 
+			and both values are within the same scope.	
+
+		\subsubsection{References}
+			In order to assign a pre-existing element 
+			as a value for another element
+			the use of the FHiCL \emph{reference} notation is required:
+			\begin{verbatim}
+				@local::
+				
+				x : 5
+				y : @local::x
+				z : @db::x
+			\end{verbatim}
+			
+	\subsection{Low-Level Entities}
+		\bf Note: \rm For all rules in this section,
+		whitespace is not allowed between tokens.
+		\subsubsection{Char}
+			A \emph{char} is one of:
+			\begin{enumerate}
+				\item any ASCII character except for:
+				\begin{itemize}
+					\item double-quote ('') 
+					\item reverse solidus (\textbackslash)
+					\item control characters
+				\end{itemize}
+				\item (\emph{printable} characters)
+				\item one of a number escape sequences, noted below:
+				\begin{itemize}
+					\item escaped double-quote (\textbackslash")
+					\item reverse solidus (\textbackslash\textbackslash)
+					\item solidus (\textbackslash/)
+					%It says "noted below", but where?
+				\end{itemize}
+				There are a number of reserved char values:
+				\begin{itemize}
+					\item colon ( : )
+					\item double colon ( :: )
+					\item equals ( = )
+					\item left/right brace ( \{\} )
+					\item left/right bracket ( [] )
+					\item left/right paren ( () )
+					\item at sign ( @ )
+				\end{itemize}		
+			\end{enumerate}
+			
+		\subsubsection{Atoms}
+%			\bf Note: \rm The definitions of \emph{atom},
+%			\emph{table}, 
+%			and \emph{sequence} are mutually interdependent.
+%			\vspace{1mm}
+%			\par
+			The most basic unit of FHiCL is the \emph{atom},
+			which is defined as: 
+			\begin{verbatim}
+				atom: number | string | NIL | BOOL_TOK | REF
+			\end{verbatim}
+			\vspace{1mm}
+			EBNF:
+			\begin{verbatim}
+				atom   =>    char | string
+				string =>    alpha[alnum]* | digit[alnum]*
+			\end{verbatim}
+			
+	\subsection{Mid-level Entities}
+		\bf Note: \rm For all rules in this section,
+		whitespace is allowed only where specified by the whitespace token \emph{ws}.
+		\subsubsection{Comments}
+			FHiCL comments are denoted by the \emph{\#} symbol,
+			which is placed at the beginning of the comment.
+			FHiCL comments are single-line,
+			and should be ignored by parsers.
+		\subsubsection{Names}
+			A \emph{name} is used to begin a \emph{definition}.
+			\vspace{1mm}
+			\par\bf{Example:}
+			\rm
+			\begin{verbatim}
+				x: 1.0
+			\end{verbatim}
+			\vspace{1mm}
+			In this case, 
+			"x" is a \emph{name} 
+			used to begin the \emph{definition} x: 1.0
+		\subsubsection{Hierarchical Names}
+			A hierarchical name,
+			or \emph{hname} is a compound name 
+			using the \emph{dot index} to denote levels of a container.
+			%is used in begin an \emph{override}:
+			\begin{verbatim}
+				tab1:{x: 1.0, y: 2.0, z: 3.0}
+				tab1.x = 5
+			\end{verbatim}
+			\vspace{1mm}
+			\par
+			EBNF:
+			\begin{verbatim}
+				hname => atom DOT_INDEX atom
+			\end{verbatim}
+			\vspace{1mm}
+			\par
+			Here we have a table, named \emph{tab1} with a member \emph{x}, \emph{y}, and \emph{z}. 
+			In order to access the \emph{x} member of \emph{tab1}
+			we must use a \emph{dot index} 
+			(denoted by a ".") 
+			to access the \emph{x} member.
+			\break
+			\break
+			The name "tab1.x"
+			is an \emph{hname}.
+	
+		\subsubsection{Values}
+			An element of type \emph{value} is either a single atom, 
+			a collection of atoms,
+			or a collection of definitions.
+			%An element of type \emph{value} is either a:
+			%\begin{itemize}
+			%	\item \emph{table},
+			%	\item \emph{sequence},
+			%	\item or an \emph{atom}:
+			%\end{itemize}
+			Example:
+			\begin{verbatim}
+				a : 1.0
+				#Where "1.0" is the value of the atom named "a"
+			\end{verbatim}
+			
+			\vspace{1mm}
+			\par
+			EBNF:
+			\begin{verbatim}
+				value => table|sequence|atom
+			\end{verbatim}	
+			\vspace{1mm}
+			\par
+			\bf Note: \rm see definitions for \emph{table} 
+			and \emph{sequence} 
+			in the next section
+	\subsection{High-Level Entities}
+
+		\bf Note: \rm For all the rules in this section,
+		whitespace is allowed between any two tokens,
+		and is not significant.
+						
+		\subsubsection{Definitions}
+			An element of type \emph{definition} is used to
+			create a new element:
+			\begin{verbatim}
+				a : 1.0
+			\end{verbatim}
+			\vspace{1mm}
+			\par
+			EBNF:
+			\begin{verbatim}
+				definition => atom COLON value
+			\end{verbatim}	
+			
+		\subsubsection{Overrides}
+			An element of type \emph{override} is used to
+			change the value of an existing element,
+			or to create a new element in a \emph{table} or \emph{sequence}.
+			The syntax for an override:
+			\begin{verbatim}
+				a: 1.0 #Declaration and initialization
+				a: 5.0 #Override (Assignment)
+				
+				OR
+				
+				tab1:{ a:1 b:2 c:3 }
+				tab1.d : 5 #Creating a new element 'd' in table 'tab1'
+			\end{verbatim}
+			\vspace{1mm}
+			EBNF:
+			\begin{verbatim}
+				override => atom COLON value
+			\end{verbatim}	
+			\bf Note: \rm the \emph{name} for an override 
+			is an \emph{hname}.
+		\subsubsection{Tables}
+			Elements of type \emph{table} 
+			are space- or line-separated collections of definitions 
+			and are denoted by (possibly empty) braces:
+			\begin{verbatim}
+				tab1:{a: 1.0 b: 2.0 c: 3.0}
+			\end{verbatim}
+			\vspace{1mm}
+			EBNF:
+			\begin{verbatim}
+				table => LBRACE table_body RBRACE
+				table_body => | table_items
+				table_items => table_item | [table_item + "," + table_items]
+				table_item => atom|definition
+			\end{verbatim}
+			\par
+			\bf NOTE:\rm Tables may contain comments 
+			\bf IF AND ONLY IF \rm
+			the table elements are line-separated. 
+			Comments cannot exist inbetween space-separated elements.
+		\subsubsection{Sequences}
+			Elements of type \emph{sequence} 
+			are comma-separated collections of atoms 
+			and are denoted by (possibly empty) brackets:
+			\begin{verbatim}
+				seq1:[a, b, c, d]
+			\end{verbatim}
+			\vspace{1mm}
+			EBNF:
+			\begin{verbatim}
+				sequence => LBRACKET sequence_body RBRACKET
+				sequence_body => | sequence_items
+				sequence_items => sequence_item | [sequence_item + "," + sequence_items]
+				sequence_item => atom
+			\end{verbatim}
+			\par
+			\bf NOTE: \rm Sequences \bf CANNOT \rm contain comments.
+		\subsubsection{The Document}
+			The \emph{document} is the highest-level construct 
+			in FHiCL.
+			Any implementation of a FHiCL parser
+			processes a \emph{document}
+			as if it were a single string.
+
+			A \emph{document} consists of exactly one,
+			possibly empty,
+			\emph{table} such as:
+			\begin{verbatim}
+				#Document start
+				main:{a: 1.0, b: "hi", c: dog, a= 5.0}
+				#Document end
+			\end{verbatim}	
+			\vspace{1mm}
+			EBNF:
+			\begin{verbatim}
+				document => table
+			\end{verbatim}
+
+\section{FHiCL Semantics}
+	\subsection{High-level result of a successful parse}
+
+		The result of parsing a \emph{document}
+		is a single \emph{table}.
+		The \emph{definition}s and \emph{override}s
+		appearing before the top-level \emph{table}
+		are intended to allow the user
+		to supply values to be substituted into element in the \emph{table}.
+		The \emph{definition}s and \emph{override}s
+		appearing after the top-level \emph{table}
+		are intended to allow the user
+		to replace values in that table.
+
+	\subsection{Representation of Atoms\index{atoms}}
+		In the parse results,
+		all \emph{atom}s
+		except for \texttt{nil} and \emph{ref}
+		are represented
+		as character strings.
+		The atom \texttt{nil} is represented by a 
+		value specified by the binding for a given programming language.
+		The resolution of \emph{ref}s is described in section~\ref{sec:refs} below.
+		\vspace{1mm}
+		\par
+		Each language binding
+		provides its own mechanism
+		for turning atoms of type \emph{integer}, \emph{real} and \emph{complex}
+		from their string representation
+		into the appropriate numerical representation.
+
+	\subsection{Resolution of \emph{Ref}s\label{sec:refs}}
+		Atoms of type \emph{ref} are replaced
+		by the value indicated by the \emph{hname} part of the \emph{ref},
+		where the environment in which the \emph{hname} is evaluated is determined
+		by the \texttt{db} or \texttt{local} at the end of the \emph{ref}.
+		\vspace{1mm}
+		\par
+		The presence of \texttt{local} indicates 
+		that the scope in which the \emph{hname} is to be sought
+		is the previously-read \emph{document} text.
+		The presence of 
+		\texttt{db} indicates
+		that the scope in which the \emph{hname} is evaluated
+		is the single database
+		to which the parser has access.
+		\vspace{1mm}
+		\par
+		If the parser has no access to a database,
+		and a \emph{ref} which ends in \texttt{db} is encountered,
+		a parse failure results.
+		If,
+		in the appropriate scope,
+		the \emph{hname} in a \emph{ref} does not resolve to any \emph{value},
+		a parse failure results.
+		
+\section{Features of Programming Language Binding}
+
+	\subsection{Output}
+
+	\subsection{Storage}
+		
+		
+\section{General Requirements}
+
+	\subsection{Additional Requirements for Dynamically Typed Languages}
+
+		Tables and sequences should be represented by a built-in type of the
+		programming language.
+
+		If the target programming language has a standard JSON library, we
+		want to make sure that our constructs can be translated to JSON format
+		and back without use of any FHiCL-specific library.
+
+		It is important that code that uses the representation of a
+		\emph{table} not need any FHiCL-specific code.
+
+\section{Output Requirements}
+
+	\subsection{Output Intended for Human Reading}
+		%\begin{fixme}
+  		Pretty-printing description here.
+		%\end{fixme}
+	\subsection{Output Intended for Machine Reading}
+		%\begin{fixme}
+  		ASCII dump facility, machine reparsable, and the same on all
+  		platforms. Very terse.
+		%\end{fixme}
+
+\section{Glossary}
+		\subsubsection{Alphas}
+			An \emph{alpha} is any of the ASCII characters a-z or A-Z.
+		\subsubsection{Digits}
+			A \emph{digit} is any of the ASCII characters 0-9.
+		\subsubsection{White Space}
+			A \emph{ws} is one of the three whitespace characters.
+		\subsubsection{Alphanumerics}
+			An \emph{alnum} is any of the ASCII characters a-z, A-Z, 0-9 or other \emph{printable} characters
+
+	%\appendix
+
+	%\printindex
+
+\end{document}
+
+\end{document}
+
