@@ -1,7 +1,5 @@
-\documentclass{memarticle}
-
-ss{memarticle}
-%\documentclass{article}
+%\documentclass{memarticle}
+\documentclass{article}
 \usepackage{marvosym} % to define \MVAt
 \newcommand{\docnumber}%
   {draft 1}
@@ -17,19 +15,19 @@ ss{memarticle}
   Ryan Putz
   }
 
-\hypersetup%
-  { pdfauthor={}%
-  , pdftitle={\doctitle}%
-  , pdfkeywords={}%
-  , pdfsubject={}%
-  }
+%\hypersetup%
+%  { pdfauthor={}%
+%  , pdftitle={\doctitle}%
+%  , pdfkeywords={}%
+%  , pdfsubject={}%
+%  }
 
-\tightlists
+%\tightlists
 
 \makeindex
 
 \begin{document}
-\topmatter
+%\topmatter
 \setlength{\parindent}{0in}
 %       Title stuff
 \title{Quick Start Guide}
@@ -50,9 +48,9 @@ ss{memarticle}
 	FHiCL comment notation bears similarity to that of PHP
 	with the exception of FHiCL not supporting the C/C++ block comment notation.
 	FHiCL comments have two notations:
-	\being{itemize}
+	\begin{itemize}
 		\item The pound/hash sign ( \# )
-		\item Two backslashes ( \testbackslash\testbackslash )
+		\item Two backslashes ( \textbackslash\textbackslash )
 	\end{itemize}
 	\par
 	The former notation is the same notation used in such programming and scripting languages as
@@ -209,7 +207,6 @@ ss{memarticle}
 		\par
 		Example 3.1.0
 		\begin{verbatim}
-			table1 :
 			{
 			   a : 5
 			   b : 6
@@ -223,18 +220,17 @@ ss{memarticle}
 		\par
 		Example 3.1.1
 		\begin{verbatim}
-			table1 :{ a : 5 b : 6 c : 7 }
+			{ a : 5 b : 6 c : 7 }
 			OR
-			table1 :{ a:5 b:6 c:7 }
+			{ a:5 b:6 c:7 }
 			NOT
-			table1 :{ a:5, b:6, c:7}
+			{ a:5, b:6, c:7}
 		\end{verbatim}
 		\par
 		FHiCL tables also have a unique quality in that they may contain comments.
 		This is true only if the elements of the table are line-separated.
 		Example 3.1.2
 		\begin{verbatim}
-			table1 :
 			{
 			   a : 5
 			   #This is a comment
@@ -244,7 +240,7 @@ ss{memarticle}
 
 			NOT
 
-			table1 :{ a:5 #this is a comment b:6}
+			{ a:5 #this is a comment b:6}
 		\end{verbatim}
 		\par
 		The second case is invalid since FHiCL comments take the rest of the line,
@@ -252,11 +248,19 @@ ss{memarticle}
 		\par
 		In order to acces members of a FHiCL table, use of an \emph{hname}
 		with the \emph{dot index} is needed.
+		\par
+		Useage of the \emph{dot index} notation requires that the table be associated with a name.
+		\par
 		For instance, if we wanted to access \emph{a} from \emph{table1} in Example 3.1.0,
 		and override the value of \emph{a} to 4, it would look like this:
 		\par
 		Example 3.1.3:
 		\begin{verbatim}
+			table1:{
+                           a : 5
+                           b : 6
+                           c : 7
+                        }
 			table1.a : 4
 		\end{verbatim}
 		\par
@@ -275,11 +279,10 @@ ss{memarticle}
 		\par
 		Example 3.2.0:
 		\begin{verbatim}
-			seq1:[ 1, 2, 3, 4 ]
+			[ 1, 2, 3, 4 ]
 			
 			OR
 
-			seq1:
 			[
 			   1,
 			   2,
@@ -295,6 +298,9 @@ ss{memarticle}
 		\par
 		In order to access members of a FHiCL sequence, use of an \emph{hname}
 		with the \emph{bracket index} is needed.
+		\par
+		Useage of the \emph{bracket index} requires that the sequence be associated with a name.
+		\par
 		For example, if we wanted to access the first element in seq1 from Example 3.2.0,
 		and override the value to 5, it would look like this:
 		\par
@@ -311,5 +317,134 @@ ss{memarticle}
 			seq1[4] : 6
 		\end{verbatim}
 		\par
-		Please note that indices of FHiCL sequences begin at zero, not one.	
+		Please note that indices of FHiCL sequences begin at zero, not one.
+\section{Include Statements}
+	In order to import values from one FHiCL document into another,
+	use of the FHiCL include statement is necessary.
+	The behavior of this include statement is similar,
+	and yet still different from the C/C++ include statement from which it was borrowed.
+	\par
+	The syntax for a FHiCL include statement begins with a pound or hash symbol (\#),
+	followed by the unquoted string "include".
+	The include is followed by \emph{exactly one white space}
+	and then a quoted string containing the full name of the target FHiCL document.
+	\par
+	Example 4.1.0:
+	\begin{verbatim}
+		#include "filename.fcl"
+	\end{verbatim}	
+	\par
+	Since the include statement shares a common starting character with that of one of the FHiCL comment notations,
+	if the syntax of the include statement is incorrect,
+	a FHiCL parser will treat the faulty include statement as a comment.
+	\par
+	If the file name within the quotes is invalid, however, the include statement will \emph{not} be treated as a comment.
+\section{Prologue}
+	FHiCL documents may contain prologue sections which may contain declarations used to create
+	a standard configuration for a FHiCL document.
+	\par
+	The beginning of a prologue section is denoted by:
+	\emph{BEGINPROLOGUE}
+	and the end is denoted by:
+	\emph{ENDPROLOGUE}.
+	\par
+	Example 5.1.0:
+	\begin{verbatim}
+		BEGINPROLOGUE
+		   x : 5
+		   y : 6
+		ENDPROLOGUE
+	\end{verbatim}
+	All elements declared between the beginning and the end 
+	do not exist within the parameter set unless specifically
+	referenced within the document.
+	\par
+	Elements within a prologue section may be referenced,
+	but may not be modified in any way otherwise.
+	For instance, take the prologue section from Example 5.1.0.
+	\par
+	We can reference both \emph{x} and \emph{y} in the prologue section by using the reference notation:
+	\par
+	Example 5.1.1:
+	\begin{verbatim}
+		z : @local::x
+		u : @local::y
+	\end{verbatim}
+	\par
+	However we cannot modify x or y in any way.
+\section{References}
+	If at any point it becomes necessary to associate a name with a value of an existing name-value pair, or to 
+	assign an existing value as a member of a sequence,
+	the use of the FHiCL \emph{Reference} notation is needed.
+	\par
+	There are two versions of the reference notation in FHiCL, one being a local reference, 
+	the other being a call or fetch to a predetermined database:
+	\begin{itemize}
+		\item @local::
+		\item @db::
+	\end{itemize}
+	\par
+	References may appear wherever a value normally is expected.
+	The only prerequesite being that the name used within the reference notation must be the name of an existing element
+	either within the current FHiCL document
+	or within the called database.
+	\par
+	Example 6.1.0:
+	\begin{verbatim}
+		x : 5
+		y : @local::x
+		z : @db::t
+	\end{verbatim}
+	\par
+	In this example, the value of \emph{y} is a reference to the pre-existing name-value pair \emph{x : 5}.
+	The element named \emph{z}'s value is a reference to a name-value pair with name \emph{t} 
+	which is to be found in a database.
+	\par
+	The names used within a FHiCL reference notation must be extremely specific in order to reference the correct element.
+	\par
+	Example 6.1.1:
+	\begin{verbatim}
+		x : 5
+		x : 6
+		tab1 :
+		{
+		   x : 1
+		   y : 2
+		   z : 3
+		}
+		y : @local::x
+	\end{verbatim}
+	\par
+	In Example 6.1.1, we start with a definition \emph{ x : 5 },
+	and then we override the value of \emph{x} with the number 6.
+	The value of \emph{y} in this case will be a reference to the
+	most recently encountered instance of \emph{x} within the same scope
+	as \emph{y}.
+	\par
+	Essentially this means that the reference to \emph{x} here will have the value
+	of \emph{ x : 6 },  
+\section{Documents}
+	FHiCL documents closely resemble FHiCL tables in that they are, for the most part,
+	containers of name-value pairs.
+	Unlike tables, however, FHiCL documents do not have braces around their elements
+	and documents may contain prologue sections.
+	\par
+	A valid FHiCL document might look something like this:
+	\par
+	Example 7.1.0:
+	\begin{verbatim}
+		BEGINPROLOGUE
+		   x : 5
+		   y : 6
+		ENDPROLOGUE
+		
+		tab1 :
+		{
+		   a : 1
+		   b : 2
+		   c : 3
+   		}
+		z : @local::x
+		y : @local::y
+	\end{verbatim}
 \end{document}
