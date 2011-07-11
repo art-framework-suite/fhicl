@@ -473,8 +473,16 @@
 		a parse failure results.
 		
 \section{Features of Programming Language Binding}
+	\subsection{Processing}
+		Each programming language binding for FHiCL must be able to produce results
+		in the standard FHiCL syntax. 
+	
 	\subsection{Output}
+		Each language binding shall return a native container construct closest to that of the FHiCL table.
+		The returned container will contain all parsed results of a valid FHiCL document.
+
 	\subsection{Storage}	
+		Storage of binding results shall be in th standard FHiCL syntax as stated above.
 		
 \section{General Requirements}
 	\subsection{Additional Requirements for Dynamically Typed Languages}
