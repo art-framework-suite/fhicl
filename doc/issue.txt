@@ -1,0 +1,28 @@
+String Canonical Form Issue - FHiCL
+
+Consider two FHiCL documents:
+
+x : .5
+
+AND 
+
+x : 0.5
+
+Do we consider the two parameter sets arising from these two documents to be equal?
+
+YES -> If you want to treat the two parameter sets as different, but pass an equality check,
+there will be an issue of storage and canonical representation.
+
+
+
+Currently, if a number can be canonically represented as an integer for string output, it will be.
+Otherwise, the number will be represented in scientific notation.
+
+QUESTION: If the numeric values do not change, is it acceptable that the canonical string form may appear in a parameter set differently
+from what the user typed into the FHiCL document?
+
+YES -> No issue
+
+NO -> Issue with comparison of equality. What does equality mean?
+
+Answer (pt. 2) -> Two identical parameter sets will produce identical results when used in a module.
