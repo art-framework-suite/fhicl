@@ -1,4 +1,4 @@
-#include "tests/pass/includetest.fcl"
+#include "../tests/pass/includetest.fcl"
 
 //Case2: Include on same line as expression is treated as a comment --> PASSED
 

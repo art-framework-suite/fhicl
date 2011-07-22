@@ -7,18 +7,14 @@
 using namespace std;
 
 const string INCLUDETAX("#include \"");
-//const string END_TAG("\n\\ END OF ");
-
-string content;
 
 void readFile(string fileName, string & content)
 {
    ifstream in(fileName.c_str());
    string line;
-   while (getline(in, line))
+   for( string line; getline(in, line);  )
    {
-      content.append("\n");
-      content.append(line);
+      content.append(line).append("\n");
       if(line.find(INCLUDETAX)!=string::npos){
 	 size_t start = line.find_first_of("\"") + 1;
 	 size_t end = (line.find_last_of("\"") - 1);
@@ -28,14 +24,13 @@ void readFile(string fileName, string & content)
 	 readFile(newFile, content);
       }
    }
-   content.append("\n//End of ");
-   content.append(fileName);
+   content.append("//End of ").append(fileName).append("\n");
 }
 
 int main(int ac, char* av[])
 {
    ofstream out("temp.txt");
-   string line;
+   string content = "";
    readFile(av[1], content);
    out << content << endl;
    return 0;

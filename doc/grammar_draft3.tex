@@ -426,7 +426,7 @@
 		\begin{itemize}
 			\item Values of true and "true" are identical.
 			\item Values of false and "false" are identical.
-			\item To includel eading or trailing zeros in any number,
+			\item To include leading or trailing zeros in any number,
 					the number must be quoted.
 			\item The small range of a real or integer value is 1,000,000.
 			\item Real numbers with no fration will be converted to integer format
@@ -436,8 +436,10 @@
 			\item Null is not supported.
 			\item Infinity and $+$infinity both become "infinity".
 			\item $-$Inifinity is supported.
-			\item A leading $+$ is not legal.
-			\item A leading 0 is not legal unless it is the sole character.
+			\item A leading $+$ is not legal, except when used with "infinity"
+			%ISSUE!!!
+			\item A leading 0 is not legal unless it is the sole character. ****Under Review****
+			%--------
 			\item Adding a double to a parameter set programmatically will have a rule that specifies how it will be handled.
 			\item 00.000E$+$000 will be "0.0" in canonical form.
 			\item Any exponent as e$+$0 will be stripped in canonical form.
@@ -471,18 +473,31 @@
 		in the appropriate scope,
 		the \emph{hname} in a \emph{ref} does not resolve to any \emph{value},
 		a parse failure results.
-		
+	\subsection{Issues with Leading Zeros and Canonical Representation}
+		As a rule, leading zeros are not allowed
+		in any situation where a number may be misinterpreted as a non-base-10 number
+		with the inclusion of (a) leading zero(s).
+		\par
+		This rule only applies to numbers that may be represented as a base-10 integer.
+		Floating point, binary, hexidecimal, and octal numbers may have leading zeros.
+		Exponential numbers may have leading zeros, but if they are representable as a base-10 integer,
+		their canonical form will be in integer form.
+		\par
+		The rationale for this rule is that in some programming languages,
+		a leading zero is used to denote a non-base-10 number,
+		I.E. "0x" is used to denote a hexidecimal number.	
 \section{Features of Programming Language Binding}
 	\subsection{Processing}
-		Each programming language binding for FHiCL must be able to produce results
+		Each programming language binding for FHiCL must be able to produce a parameter set
 		in the standard FHiCL syntax. 
 	
 	\subsection{Output}
 		Each language binding shall return a native container construct closest to that of the FHiCL table.
-		The returned container will contain all parsed results of a valid FHiCL document.
+		The returned container shall contain a valid FHiCL parameter set.
 
 	\subsection{Storage}	
 		Storage of binding results shall be in th standard FHiCL syntax as stated above.
+		A FHiCL parameter set shall be stored in a file with the suffix ".fcl".
 		
 \section{General Requirements}
 	\subsection{Additional Requirements for Dynamically Typed Languages}
@@ -499,14 +514,13 @@
 \section{Output Requirements}
 
 	\subsection{Output Intended for Human Reading}
-		%\begin{fixme}
-  		Pretty-printing description here.
-		%\end{fixme}
+  		"Pretty Printers" must make use of newlines and indentation throughout parameter set output.
+		The use of newlines and indentation between table elements, individual associations, include statements
+		and comments is required.
 	\subsection{Output Intended for Machine Reading}
-		%\begin{fixme}
-  		ASCII dump facility, machine reparsable, and the same on all
-  		platforms. Very terse.
-		%\end{fixme}
+		Output for use by machine(s) is to be machine parsable,
+		have an ASCII dump facility and platform neutral.
+  		Machine output is to be exclude unnecessary elements such as comments.
 
 \section{Glossary}
 		\subsubsection{Alphas}

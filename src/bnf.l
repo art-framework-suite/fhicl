@@ -87,6 +87,8 @@ comment		    (\/\/.*$)|(#.*$)
 %%
 #include <string>
 #include <fstream>
+#include <iostream>
+#include <cstring>
 
 int yywrap() { return 1; }
 
@@ -99,9 +101,9 @@ char* stringDup(const char* s)
 
 char* stringDupQuoted(const char* s,char quotetype)
 {
-  int len = strlen(s);
+  int len = std::strlen(s);
   char* buffer = static_cast<char*>(malloc(len+1+2));
-  strcpy(buffer+1, s);
+  std::strcpy(buffer+1, s);
   buffer[0]=quotetype;
   buffer[len+1]=quotetype;
   buffer[len+2]='\0';

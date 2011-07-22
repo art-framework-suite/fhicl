@@ -1,21 +1,21 @@
-all: grammar_new.pdf parser
-
-grammar.pdf: grammar.tex memarticle.cls
-	pdflatex grammar
-	rail grammar
-	latexmk --pdf grammar
+all: bnf.tab.h bnf.tab.c lex.yy.c preprocess parser
+#grammar_new.pdf
+#grammar.pdf: grammar.tex memarticle.cls
+#	pdflatex grammar
+#	rail grammar
+#	latexmk --pdf grammar
 
 createId.pdf: createId.tex
 	pdflatex createId
 	latexmk --pdf createId
 
-grammar_draft1.pdf: grammar_draft1.tex memarticle.cls
-	pdflatex $<
-	rail grammar_draft1
-	latexmk --pdf grammar_draft1
+#grammar_draft1.pdf: grammar_draft1.tex memarticle.cls
+#	pdflatex $<
+#	rail grammar_draft1
+#	latexmk --pdf grammar_draft1
 
-grammar_new.pdf: grammar_new.tex memarticle.cls
-	latexmk --pdf grammar_new
+#grammar_new.pdf: grammar_new.tex memarticle.cls
+#	latexmk --pdf grammar_new
 
 bnf.y: bnf.y.inc bnf.y.template
 	(m4 bnf.y.template > bnf.y)
@@ -30,16 +30,17 @@ parser: bnf.tab.c lex.yy.c
 	c++ -o parser bnf.tab.c lex.yy.c -lfl -ly
 
 test:   parser
-	preprocess tests/pass/test1.fcl
+	preprocess ../tests/pass/test1.fcl
 	parser < temp.txt
-	preprocess tests/pass/test2.fcl
+	preprocess ../tests/pass/test2.fcl
 	parser < temp.txt
-	preprocess tests/pass/test3.fcl
+	preprocess ../tests/pass/test3.fcl
 	parser < temp.txt
-	preprocess tests/pass/test4.fcl
+	preprocess ../tests/pass/test4.fcl
 	parser < temp.txt
-	preprocess tests/pass/test5.fcl
+	preprocess ../tests/pass/test5.fcl
 	parser < temp.txt
+	rm -rf temp.txt
 
 preprocess: preprocess.cc
 	g++ -o preprocess preprocess.cc
