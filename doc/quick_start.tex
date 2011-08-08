@@ -45,12 +45,11 @@
 	This Quick Start Guide will explain and demonstrate the major syntax and semantics
 	of the language so that users may create valid FHiCL documents with ease.
 \section{Comments}
-	FHiCL comment notation bears similarity to that of PHP
-	with the exception of FHiCL not supporting the C/C++ block comment notation.
+	FHiCL comment notation is a combination of PHP and C/C++ comment syntax.
 	FHiCL comments have two notations:
 	\begin{itemize}
 		\item The pound/hash sign ( \# )
-		\item Two backslashes ( \textbackslash\textbackslash )
+		\item Two foreslashes ( // )
 	\end{itemize}
 	\par
 	The former notation is the same notation used in such programming and scripting languages as
@@ -63,6 +62,7 @@
 		FHiCL names are simple, non-quoted strings.
 		Names may not begin with a digit,
 		but may begin with an underscore.
+		FHiCL names may not contain whitespace or escaped characters
 		\par
 		Illustrated in Example 1.1.0,
 		you will find a list of examples of valid FHiCL name values.
@@ -78,7 +78,7 @@
 		\end{verbatim}
 		\par
 		There is also an advanced type of FHiCL name called 
-		\emph{hierarchical name} or \emph{hname} for short.
+		\emph{hierarchical name} or \emph{hname}, for short.
 		These hnames are compound names linked together through the use of
 		a \emph{dot index} or a \emph{bracket index}.
 		Hnames are used to access members of FHiCL containers
@@ -103,8 +103,15 @@
 			\item Table
 			\item Sequence
 			\item Document
-			\item 
 		\end{itemize}
+		\par
+		Single-quoted strings are taken verbatim
+		and may contain escaped or printable characters as well as whitespace.
+		\par
+		Double-quoted strings may contain escaped and printable characters,
+		but are not quoted verbatim. 
+		Escaped characters are processed in the string. 
+		Double-quoted strings may contain whitespace.
 		\par
 		In Example 1.2.0, there are a few examples of valid FHiCL values.
 		Example 1.2.0:
@@ -114,15 +121,16 @@
 			string
 			"string"
 			'string'
+			'string\n'
 			12345
 			"123abc"
 			'123abc'
 		\end{verbatim}
-	\subsection{The Syntax}
+	\subsection{Associations}
 		In most programming languages there is the idea of an \emph{assignment}. 
 		In FHiCL, however, instead of assigning a value to a name, 
 		we are \emph{associating} a value with a name; 
-		much like the relationship between a key and a value in a C++ std::map.
+		much like the relationship between a key and a value in a C++ std::map or a Python dictionary.
 		\par
 		The basic association is the backbone of the FHiCL syntax.
 		A basic FHiCL association has three parts:
@@ -173,8 +181,8 @@
 			cat : 'QT McWhiskers'
 			fish : Klaus
 		\end{verbatim}
-		Please note that unquoted string values must be \emph{simple} in that they may not contain
-		any white space.
+		Please note that unquoted string values must be \emph{simple} in that they may only contain
+		the characters A-Z, a-z, or underscores (\_).
 		Double-quoted strings may contain special escaped characters,
 		and single-quoted strings are quoted verbatim.
 \section{Overrides}
@@ -196,6 +204,12 @@
 	\begin{verbatim}
 		x : 5
 		x : 6
+	\end{verbatim}
+	\par
+	Example 2.0.1
+	\begin{verbatim}
+		tab1: { a:1 b:2 }
+		tab1.c : 3
 	\end{verbatim}
 \section{Tables And Sequences}
 	Two major constructs in FHiCL are the \emph{table} and the \emph{sequence}.
@@ -223,6 +237,12 @@
 			{ a : 5 b : 6 c : 7 }
 			OR
 			{ a:5 b:6 c:7 }
+			OR
+			{
+			   a:5
+			   b:6
+			   c:7
+			}
 			NOT
 			{ a:5, b:6, c:7}
 		\end{verbatim}
@@ -292,6 +312,12 @@
 		\end{verbatim}
 		\par
 		Elements of a sequence \emph{must} be separated by commas.
+		Each element in a sequence is a value, and so,
+		it is possible to have a sequence of tables such as:
+		\begin{verbatim}
+		   seq:[ { a:1 b:2 }, { c:3 d:4 } ]
+		\end{verbatim}
+		\par
 		Also, please note that FHiCL sequences may not contain name-value pairs.
 		\par
 		FHiCL sequences may not contain comments.
@@ -372,6 +398,14 @@
 	\end{verbatim}
 	\par
 	However we cannot modify x or y in any way.
+        Access to values within a prolog works exactly like it does when the referenced value is in the document.
+        You use the reference notation \emph{@local::} folowed by the target value you wish to reference.
+        \par
+        It is important to note that you \emph{MAY NOT} override values within a prolog from outside of a prolog.
+        The only way to override prolog values is to use a reference within either the same prolog, or another prolog.
+        Statements that appear to be attempting to override prolog values are treated as new associations, therefore creating
+        new associations in the parameter set.
+
 \section{References}
 	If at any point it becomes necessary to associate a name with a value of an existing name-value pair, or to 
 	assign an existing value as a member of a sequence,
@@ -422,7 +456,7 @@
 	as \emph{y}.
 	\par
 	Essentially this means that the reference to \emph{x} here will have the value
-	of \emph{ x : 6 },  
+	of \emph{ x : 6 }.
 \section{Documents}
 	FHiCL documents closely resemble FHiCL tables in that they are, for the most part,
 	containers of name-value pairs.
@@ -447,4 +481,8 @@
 		z : @local::x
 		y : @local::y
 	\end{verbatim}
+\section{Conclussion}
+	This concludes the FHiCL Quick Start document. 
+	The definitions and examples given above will allow users to create their own FHiCL documents with ease,
+	and should provide a quick reference for users who are familiar with the language but are in need of a primer.
 \end{document}
