@@ -94,6 +94,76 @@
         \section{Low-Level Entities}
                 \textbf{ Note: } For all rules in this section,
                 whitespace is not allowed between tokens.
+		\index{number}
+		\index{simple}
+		\index{complex}
+		\index{hexadecimal}
+		\index{binary}
+		\index{nil}
+		\index{infinity}
+		\subsection{Number}
+			A \emph{number} in FHiCL is composed of several subtypes:
+			\begin{itemize}
+				\item Simple
+				\item Complex
+				\item Hexadecimal
+				\item Binary
+				\item Nil
+				\item Infinity
+			\end{itemize}
+			\subsubsection{Simple}
+				A \emph{simple} number is either an integer
+				or a floating point number.
+				\par
+				EBNF:
+				\begin{verbatim}
+					float: [num]*[.][num]*
+					integer: [1-9^.][0-9^.]*
+					simple: float | integer
+				\end{verbatim}
+			\subsubsection{Complex}
+				A \emph{complex} number is a tuple of simple numbers.
+				\par
+				EBNF:
+				\begin{verbatim}
+					complex: "(" simple "," simple ")" 
+				\end{verbatim}
+			\subsubsection{Hexadecimal}
+				A \emph{hexadecimal} number is composed of two parts:
+				\begin{enumerate}
+					\item A prefix
+					\item A numeric
+				\end{enumerate}
+				Where the numeric part is in base 16.
+				\par
+				The prefix for hexadecimal numbers is \emph{0x}
+				or \emph{0X}.
+				\par
+				EBNF:
+				\begin{verbatim}
+					hex: (0x|0X)[0-9a-fA-F]+
+				\end{verbatim}
+			\subsubsection{Binary}
+				A \emph{binary} number is similar to a hexadecimal number except that
+				the numeric portion of the number is in base 2.
+				Also, the prefix for \emph{binary} numbers is emph{0b} as opposed to
+				\emph{0x} for hexadecimal numbers.
+				\par
+				EBNF:
+				\begin{verbatim}
+					bin: (0b|0B)[01]+
+				\end{verbatim}
+			\subsubsection{Nil}
+				\emph{Nil} is FHiCL's implementation of \emph{null}.
+				Valid forms for \emph{nil} are as follows:
+				\begin{enumerate}
+					\item nil
+					\item Nil
+					\item NIL
+				\end{enumerate}
+			\subsubsection{Infinity}
+				\emph{Infinity}, in FHiCL, is simply a placeholder as the actual value
+				will be filled in by whichever language binding is creating the parameter set.	
                 \index{char}
                 \subsection{Reserved and Special Characters}
                         A \emph{char} is one of:
@@ -548,41 +618,66 @@
                 for turning atoms of type \emph{integer}, \emph{real} and \emph{complex}
                 from their string representation
                 into the appropriate numerical representation.
-        \section{Value Semantics}
-                \subsection{Boolean Semantics}
-                        \begin{itemize}
-                                \item Values of true and "true" are identical.
-                                \item Values of false and "false" are identical.
-                        \end{itemize}
-                \index{small range}
-		\index{leading zero(s)}
-		\index{trailing zero(s)}
-                \subsection{Numeric Semantics}
-                        \begin{itemize}
-                                \item To include leading or trailing zeros in any number,
-                                      the number must be quoted.
-                                \item The \emph{small range} of a real or integer value is 1,000,000.
-                                \item Real numbers with no fraction will be converted to integer format
-                                      if within the \emph{small range}.
-                                \item A canonical real has no leading zeros in exponent or fraction, lower case e, with plus or minus.
-                                \item Canonical integers have no leading zeros
-                                \item Null is not suppoted
-                                \item Infinity and $+$infinity both become "infinity".
-                                \item $-$Infinity is supported.
-                                \item A leading $+$ is not legal, except when used with "infinity".
-                                \item A leading zero (0) is not legal unless it is the sole character.
-                                \item Adding a double to a parameter set programmatically will have a rule that specifies how it will be handled.
-                                \item 00.000E$+$000 will be "0.0" in canonical form.
-                                \item Any exponent as e$+$0 will be stripped in canonical form.
-                                \item $-$0.0 retains the negative.
-                                \item nil and "nil" are treated as identical.        
-                        \end{itemize}
-                \subsection{String Semantics}
-                        \begin{itemize}
-                                \item String concatentation opreations are permitted, but only for quoted string values.
-                                \item No unquoted white space is permitted
-                                \item Quotes for string values can be left out if the string value has no white space and is simple.
-                        \end{itemize}
+	\section{Canonical Forms}
+		\index{boolean, canonical}
+		\index{true, canonical}
+		\index{false, canonical}
+		\index{integer, canonical}
+		\index{floating point, canonical}
+		\index{hex, canonical}
+		\index{bin, canonical}
+		\index{string, canonical}
+		\index{canonical form}
+		\subsection{Canonical Booleans}
+			Boolean values, whether entered with quotes or not,
+			will be stored in the following form (EBNF):
+			\begin{verbatim}
+				bareT: true
+				quoteT: "true"
+				bareF: false
+				quoteF: "false"
+				bool: (["]bareT | bareF["]) | (quoteT | quoteF)
+			\end{verbatim}
+		\subsection{Canonical Numbers}
+			Numeric values in FHiCL each have their own canonical form based on their type.
+			\subsubsection{Integer}
+				Integers in FHiCL \emph{may} have leading zeros,
+				however the canonical form will strip any leading zeros from the integer.
+				Also, if an integer is outside of the \emph{small range} (which is 1,000,000),
+				its canonical form will be a floating point number using scientific notation.
+
+			\subsubsection{Floating Point}
+				Floating point numbers in FHiCL may also have leading zeros,
+				with the canonical form stripping out all but one leading zero.
+				Also, if a floating point number can be represented as an integer
+				and is within the \emph{small range}, 
+				then the floating point number will be canonically stored as an integer.
+
+			\subsubsection{Hexadecimal and Binary}
+				The numeric portions of \emph{hexadecimal} and \emph{binary} numbers will have the leading zeros stripped.
+				The prefix used to identify both types of numbers \emph{do not} count as a leading zero.
+				The canonical form of hexadecimal and binary numbers in FHiCL is as follows:
+				\par
+				EBNF:
+				\begin{verbatim}
+					hex: (0x|0X)[1-9a-fA-F][0-9a-fA-F]*
+					bin: (0b|0B)[1][10]*
+				\end{verbatim}
+			\subsubsection{General Notes}
+				Negative(-) signage is supported in FHiCL and is kept in the canonical form.
+				However, positive(+) signage, while it is supported, is stripped when in canonical form. 
+				So, \emph{$-$infinity} in canonical form is still \emph{$-$infinity}.
+				However, emph{$+$infinity} becomes just \emph{infinity} in canonical form.
+		\subsection{Canonical Strings}
+			Canonical form for all \emph{string}s is a string representation of the characters.
+			\par
+			Notes:
+			\begin{itemize}
+				\item Stirng concatenation operatiosn are permitted, but only for quoted string values.
+				\item No unquoted white space is permitted.
+				\item Quotes for string values can be omitted if the string value is considered to be 'simple'.
+				\item A 'simple' string is made up of only underscores and alphabetic characters.
+			\end{itemize}
         \index{reference}
         \index{hname}
         \index{local}

@@ -23,6 +23,6 @@ from what the user typed into the FHiCL document?
 
 YES -> No issue
 
-NO -> Issue with comparison of equality. What does equality mean?
+NO -> Issue with comparison of equality. Secondary Question: What does equality mean?
 
 Answer (pt. 2) -> Two identical parameter sets will produce identical results when used in a module.
