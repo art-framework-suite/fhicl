@@ -1,42 +1,80 @@
 \documentclass{memarticle}
 \usepackage{marvosym} % to define \MVAt
 
-\newcommand{\docnumber}%
-  {draft 1}
 
-\newcommand{\doctitle}%
-  {DRAFT---{\color{magenta}Quick Start Guide for the Fermilab Hierarchical Configuration Language}---DRAFT}
+
+%\title{Quick Start Guide for the Fermilab Hierarchical Configuration Language (FHiCL)}
+%\date{}
+%\author{Ryan Putz}
+
+\newcommand{\docnumber}{1}
+
+%\newcommand{\doctitle}%
+%  {{\color{magenta}Quick Start Guide for the Fermilab Hierarchical Configuration Language(FhICL)}}
 
 \newcommand{\shorttitle}%
- {DRAFT---FHiCL Quick Start Guide---DRAFT}
+ {FHiCL Quick Start Guide}
 
-\newcommand{\authors}%
-  {
-  Ryan Putz
-  }
+%\newcommand{\authors}%
+%  {
+%  Ryan Putz
+%  }
 
-\hypersetup%
-  { pdfauthor={}%
-  , pdftitle={\doctitle}%
-  , pdfkeywords={}%
-  , pdfsubject={}%
-  }
+%\hypersetup%
+%  { pdfauthor={}%
+%  , pdftitle={\doctitle}%
+%  , date={\date{}}	
+%  , pdfkeywords={}%
+%  , pdfsubject={}%
+%  }
+
+\title{Quick Start Guide for the Fermilab Hierarchical Configuration Language (FHiCL)}
+\date{\today}
+\author{Ryan Putz}
 
 \tightlists
-
-\makeindex
-
 \begin{document}
-\topmatter
+%\topmatter
 \setlength{\parindent}{0in}
+\maketitle
 \newpage
-
+\tableofcontents
+\newpage
 \chapter{Introduction}
-	The purpose of this document is to train users in the proper usage
-	of the Fermilab Hierarchical Configuration Language (FHiCL).
-	This Quick Start Guide will explain and demonstrate the major syntax and semantics
+	The purpose of this document is to explain and demonstrate the major syntax and semantics
 	of the language so that users may feel comfortable with the features
-	and limitations of the FHiCL.
+	and limitations of FHiCL.
+
+\chapter{Documents}
+        Any file with the suffix ".fcl" is considered to be a FHiCL document.
+        FHiCL documents are unparsed text files containing syntactical description of a parameter set.
+        \par
+        FHiCL document closely resemble FHiCL tables in that they are, for the most part,
+        containers of \emph{name : value} pairs.
+        Unlike tables, however, FHiCL documents do not have braces around their elements
+        and documents may contain \emph{prolog} sections.
+        \par
+        A valid FHiCL document might look something like this:
+        \par
+        Example 7.1.0:
+        \begin{verbatim}
+                BEGINPROLOGUE
+                   x : 5
+                   y : 6
+                ENDPROLOGUE
+                
+                tab1 :
+                {
+                   a : 1
+                   b : 2
+                   c : 3
+                }
+                z : @local::x
+                y : @local::y
+        \end{verbatim}
+        \par
+        FHiCL documents, once completed, may be run through any one of a variety of programming lanuage bindings
+        in order to produce a parameter set from the FHiCL notation within the document.
 
 \chapter{Comments}
 	FHiCL comment notation is a combination of the syntax used in several popular scripting languages and the C/C++ comment syntax.
@@ -51,11 +89,82 @@
 	\par
 	The latter notation is the C++ inline comment notation.
 	\par
+	FHiCL comments terminate at end of line. 
+	Therefore, it is possible to have a margin comment after a \emph{name : value} pair.
+	\section{Examples}
+		Below are several examples of valid comment syntax in FHiCL.
+		\par
+		Example 2.1.0:
+		\begin{verbatim}
+			#This is a comment
+			//This is also a comment
+			foo : bar #this is a margin comment
+			foo1 : bar2 //and so is this
+		\end{verbatim}
+\chapter{Associations}
+        In most programming languages there is the idea of an \emph{assignment}.
+        In FHiCL,  instead of assigning a value to a name,
+        we are \emph{associating} a \emph{value} with a \emph{name};
+        much like the relationship between a keys and values in a C++ std::map or a Python dictionary.
+        \par
+        The basic association is the backbone of the FHiCL syntax.
+        A basic FHiCL association has three parts:
+        \begin{enumerate}
+                \item A name
+                \item The colon symbol ( : )
+                \item A value
+        \end{enumerate}
+        \par
+        Or in EBNF it would look like this:
+        \begin{verbatim}
+                association => name COLON value
+        \end{verbatim}
+        \par
+        There are slight variations on this model used throughout the language,
+        but the basic premise does not change.
+        We will see examples of these variations later on.
+        \section{Examples}
+                Let's say that we want to declare three new FHiCL elements: a, b, c
+                and associate with these elements, the values of 1, 2, 3, respectively.
+                Here is how that would look in a valid FHiCL document:
+                \par
+                Example 1.4.0:
+                \begin{verbatim}
+                        a : 1
+                        b : 2
+                        c : 3
+                \end{verbatim}
+                \par
+                Now we have three new FHiCL name-value pairs.
+                Please note that in \emph{most} aspects of FHiCL,
+                the use of whitespace is optional.
+                \par
+                So this would also be a valid way to write the associations in Example 1.0:
+                \par
+                Example 1.4.1:
+                \begin{verbatim}
+                        a:1
+                        b:2
+                        c:3
+                \end{verbatim}
+                \par
+                Here are a few more examples of valid FHiCL associations using various types of strings:
+                \par
+                Example 1.4.2:
+                \begin{verbatim}
+                        dog : "Wish Bone"
+                        cat : 'QT McWhiskers'
+                        fish : Klaus
+                \end{verbatim}
+                Please note that unquoted string values must be \emph{simple} in that they may only contain
+                the characters A-Z, a-z, or underscores (\_).
+                Double-quoted strings may contain special escaped characters,
+                and single-quoted strings are quoted verbatim.
+
 \chapter{Names}
-	FHiCL names are simple, non-quoted strings.
-	Names may not begin with a digit,
-	but may begin with an underscore.
-	FHiCL names may not contain whitespace or escaped characters
+	FHiCL names are simple sequences of characters.
+	Names must begin with an alphabetic character,
+	or with an underscore.
 	\par
 	Illustrated in Example 1.1.0,
 	you will find a list of examples of valid FHiCL name values.
@@ -69,115 +178,176 @@
 		a_fish_
 		_a_bird_
 	\end{verbatim}
-	\par
-	There is also an advanced type of FHiCL name called 
-	\emph{hierarchical name} or \emph{hname}, for short.
-	These hnames are compound names linked together through the use of
-	a \emph{dot index} or a \emph{bracket index}.
-	Hnames are used to access members of FHiCL containers
-	and their associated values.
-	\par
-	Example 1.1.1:
-	\begin{verbatim}
-		name.first = "beth"
-		name.last = "johnson"
-		scores[0] = 5
-		scores[3] = 6
-	\end{verbatim}
-	\par
-	We will see more in-depth examples of hname useage later on.
 \chapter{Values}
 	FHiCL values can be extremely diverse.
 	FHiCL values are any one of the following:
 	\begin{itemize}
-		\item Single character (quoted or unquoted)
-		\item String (quoted or unquoted)
-		\item Number
+		\item Atom
 		\item Table
 		\item Sequence
-		\item Document
 	\end{itemize}
-	\par
-	Single-quoted strings are taken verbatim
-	and may contain escaped or printable characters as well as whitespace.
-	\par
-	Double-quoted strings may contain escaped and printable characters,
-	but are not quoted verbatim. 
-	Escaped characters are processed in the string. 
-	Double-quoted strings may contain whitespace.
-	\par
-	In Example 1.2.0, there are a few examples of valid FHiCL values.
-	Example 1.2.0:
-	\begin{verbatim}
-		a
-		ab
-		string
-		"string"
-		'string'
-		'string\n'
-		12345
-		"123abc"
-		'123abc'
-	\end{verbatim}
-\chapter{Associations}
-	In most programming languages there is the idea of an \emph{assignment}. 
-	In FHiCL,  instead of assigning a value to a name, 
-	we are \emph{associating} a value with a name; 
-	much like the relationship between a key and a value in a C++ std::map or a Python dictionary.
-	\par
-	The basic association is the backbone of the FHiCL syntax.
-	A basic FHiCL association has three parts:
-	\begin{enumerate}
-		\item A name
-		\item The colon symbol ( : )
-		\item A value
-	\end{enumerate}
-	\par
-	Or in EBNF it would look like this:
-	\begin{verbatim}
-		association => name COLON value
-	\end{verbatim}
-	\par
-	There are slight variations on this model used throughout the language,
-	but the basic premise does not change. 
-	We will see examples of these variations later on.
-	\section{Examples}
-		Let's say that we want to declare three new FHiCL elements: a, b, c
-		and associate with these elements, the values of 1, 2, 3, respectively. 
-		Here is how that would look in a valid FHiCL document:
+	\section{Atoms}
+		\begin{itemize}
+			\item Literal
+			\item Number
+			\item String
+		\end{itemize}
+		\subsection{Literal}
+			FHiCL literals consist of the two boolean values,
+			\emph{true} and \emph{false},
+			as well as \emph{nil},
+			which is the FHiCL implementation of \emph{null}
+		\subsection{Number}
+			FHiCL numbers are made up of one of the following:
+			\begin{itemize}
+				\item Signed or unsigned integers.
+				\item Signed or unsigned infinity.
+				\item Real numbers.
+			\end{itemize}
+			\par
+			Leading zeros are allowed in FHiCL numbers, 
+			however please note that any leading zeros will be stripped in the resulting parameter set.
+		\subsection{String}
+	        	\par
+        		Single-quoted strings are taken verbatim
+        		and may contain escaped or printable characters as well as whitespace.
+        		\par
+        		Double-quoted strings may contain escaped and printable characters,
+        		but are \emph{not} quoted verbatim.
+        		Escaped characters are processed in the string.
+        		Double-quoted strings may contain whitespace.
+       			\par
+        		In Example 1.2.0, there are a few examples of valid FHiCL values.
+        		Example 1.2.0:
+        		\begin{verbatim}
+                		a
+                		ab
+                		string
+                		"string"
+                		'string'
+                		'string\n'
+                		12345
+                		"123abc"
+                		'123abc'
+        		\end{verbatim}
+
+	\section{Tables}
+                A FHiCL table is a container for name-value pairs
+                and is denoted by (possibly empty) braces.
+                \par
+                Example 3.1.0
+                \begin{verbatim}
+                        {
+                           a : 5
+                           b : 6
+                           c : 7
+                        }
+                \end{verbatim}
+                \par
+                Elements of a FHiCL table may \emph{not} be comma-separated.
+                The elements may be separated by either whitespace or newline.
+                Therefore it would also be valid to write \emph{table1} like this:
+                \par
+                Example 3.1.1
+                \begin{verbatim}
+                        { a : 5 b : 6 c : 7 }
+                        OR
+                        { a:5 b:6 c:7 }
+                        OR
+                        {
+                           a:5
+                           b:6
+                           c:7
+                        }
+                        NOT
+                        { a:5, b:6, c:7}
+                \end{verbatim}
+                \par
+                FHiCL tables also have a unique quality in that they may contain comments.
+                This is true only if the elements of the table are line-separated.
+                Example 3.1.2
+                \begin{verbatim}
+                        {
+                           a : 5
+                           #This is a comment
+                           b : 6
+                           //This is a comment
+                        }
+                        NOT
+
+                        { a:5 #this is a comment b:6}
+                \end{verbatim}
+                \par
+                The second case is invalid since FHiCL comments terminate at end of line.
+                This results in the closing brace for the table being interpreted as part of the comment.
+
+        \section{Sequences}
+                A FHiCL sequence is a container of values
+                and is denoted by (possibly empty) brackets.
+                \par
+                Example 3.2.0:
+                \begin{verbatim}
+                        [ 1, 2, 3, 4 ]
+                        
+                        OR
+
+                        [
+                           1,
+                           2,
+                           3,
+                           4
+                        ]
+                \end{verbatim}
+                \par
+                Elements of a sequence \emph{must} be separated by commas.
+                Each element in a sequence is a value, and so,
+                it is possible to have a sequence of tables such as:
+                \begin{verbatim}
+                   seq:[ { a:1 b:2 }, { c:3 d:4 } ]
+                \end{verbatim}
+                \par
+                Also, please note that FHiCL sequences may not contain name-value pairs.
+                \par
+                FHiCL sequences may not contain comments.
+\chapter{Hierarchical Names}
+        \par
+        There is also an advanced type of FHiCL name called
+        \emph{hierarchical name} or \emph{hname}, for short.
+        These hnames are compound names linked together through the use of
+        a \emph{dot index} or a \emph{bracket index}.
+        Hnames are used to access members of FHiCL containers
+        and their associated values.
+	\section{Dot Index}
+		A \emph{dot index} is the operator \emph{"."} used to denote access to the elements of a FHiCL table.
+		For instance, assume that we have the following table:
 		\par
-		Example 1.4.0:
 		\begin{verbatim}
-			a : 1
-			b : 2
-			c : 3
+			tab1:{ a:5 b:6 }
+		\end{verbatim}
+		In order to access either \emph{a} or \emph{b} in \emph{tab1},
+		the use of the \emph{dot index} is required, as such:
+		\begin{verbatim}
+			tab1.a
+			tab1.b
+		\end{verbatim}
+		The result of each statement will be the \emph{value} associated with each \emph{name} in the table \emph{tab1}.
+	\section{Bracket Index}
+		A \emph{bracket index} is the operator \emph{"[ ]"} used to denote access to the elements of a FHiCL sequence.
+		For example, take the folowing FHiCL sequence:
+		\par
+		\begin{verbatim}
+			seq1:[ 1, 2, 3 ]
 		\end{verbatim}
 		\par
-		Now we have three new FHiCL name-value pairs.
-		Please note that in \emph{most} aspects of FHiCL,
-		the use of whitespace is optional.
-		\par
-		So this would also be a valid way to write the associations in Example 1.0:
-		\par
-		Example 1.4.1:
+		In order to access any of the three elements in \emph{seq1},
+		the use of the \emph{bracket index} is required, like so:
 		\begin{verbatim}
-			a:1
-			b:2
-			c:3
-		\end{verbatim} 
- 		\par
-		Here are a few more examples of valid FHiCL associations using various types of strings:
-		\par
-		Example 1.4.2:
-		\begin{verbatim}
-			dog : "Wish Bone"
-			cat : 'QT McWhiskers'
-			fish : Klaus
+			seq1[0]
+			seq1[1]
+			seq1[2]	
 		\end{verbatim}
-		Please note that unquoted string values must be \emph{simple} in that they may only contain
-		the characters A-Z, a-z, or underscores (\_).
-		Double-quoted strings may contain special escaped characters,
-		and single-quoted strings are quoted verbatim.
+		The integer in between the brackets is the \emph{index} of the element being accessed.
+
 \chapter{Overrides}
 	In FHiCL, the term \emph{override} has special meaning and its use is two-fold:
 	\begin{enumerate}
@@ -190,7 +360,7 @@
 	the \emph{name} portion of the statement must be the name of a pre-existing element
 	which exists at the same level of scope as the override statement.
 	\par
-	Please note that the use of an hname allows an override statement to descend through layers of scope,
+	Please note that the use of an \emph{hname} allows an override statement to descend through layers of scope,
 	but there is no way to ascend through layers of scope.
 	\par
 	Example 2.0.0:
@@ -204,139 +374,6 @@
 		tab1: { a:1 b:2 }
 		tab1.c : 3
 	\end{verbatim}
-\chapter{Tables And Sequences}
-	Two major constructs in FHiCL are the \emph{table} and the \emph{sequence}.
-	Each of these containters has a unique syntax for declaration and access.
-
-	\section{Tables}
-		A FHiCL table is a container for name-value pairs
-		and is denoted by (possibly empty) braces.
-		\par
-		Example 3.1.0
-		\begin{verbatim}
-			{
-			   a : 5
-			   b : 6
-			   c : 7
-			}
-		\end{verbatim}
-		\par
-		Elements of a FHiCL table may \emph{not} be comma-separated.
-		The elements may be separated by either whitespace or newline.
-		Therefore it would also be valid to write \emph{table1} like this:
-		\par
-		Example 3.1.1
-		\begin{verbatim}
-			{ a : 5 b : 6 c : 7 }
-			OR
-			{ a:5 b:6 c:7 }
-			OR
-			{
-			   a:5
-			   b:6
-			   c:7
-			}
-			NOT
-			{ a:5, b:6, c:7}
-		\end{verbatim}
-		\par
-		FHiCL tables also have a unique quality in that they may contain comments.
-		This is true only if the elements of the table are line-separated.
-		Example 3.1.2
-		\begin{verbatim}
-			{
-			   a : 5
-			   #This is a comment
-			   b : 6
-			   //This is a comment
-			}
-
-			NOT
-
-			{ a:5 #this is a comment b:6}
-		\end{verbatim}
-		\par
-		The second case is invalid since FHiCL comments go until an end of the line is read,
-		the closing brace for the table will be interpreted as part of the comment.
-		\par
-		In order to acces members of a FHiCL table, use of an \emph{hname}
-		with the \emph{dot index} is needed.
-		\par
-		Useage of the \emph{dot index} notation requires that the table be associated with a name.
-		\par
-		For instance, if we wanted to access \emph{a} from \emph{table1} in Example 3.1.0,
-		and override the value of \emph{a} to 4, it would look like this:
-		\par
-		Example 3.1.3:
-		\begin{verbatim}
-			table1:{
-                           a : 5
-                           b : 6
-                           c : 7
-                        }
-			table1.a : 4
-		\end{verbatim}
-		\par
-		Similarly, if we wanted to add or \emph{override} in a fourth member to \emph{table1}
-		(we'll call it \emph{d} and we'll give it a value of 8)
-		it would look like this:
-		\par
-		Example 3.1.4:
-		\begin{verbatim}
-			table1.d : 8
-		\end{verbatim}
-		\par
-	\section{Sequences}
-		A FHiCL sequence is a container of values
-		and is denoted by (possibly empty) brackets.
-		\par
-		Example 3.2.0:
-		\begin{verbatim}
-			[ 1, 2, 3, 4 ]
-			
-			OR
-
-			[
-			   1,
-			   2,
-			   3,
-			   4
-			]
-		\end{verbatim}
-		\par
-		Elements of a sequence \emph{must} be separated by commas.
-		Each element in a sequence is a value, and so,
-		it is possible to have a sequence of tables such as:
-		\begin{verbatim}
-		   seq:[ { a:1 b:2 }, { c:3 d:4 } ]
-		\end{verbatim}
-		\par
-		Also, please note that FHiCL sequences may not contain name-value pairs.
-		\par
-		FHiCL sequences may not contain comments.
-		\par
-		In order to access members of a FHiCL sequence, use of an \emph{hname}
-		with the \emph{bracket index} is needed.
-		\par
-		Useage of the \emph{bracket index} requires that the sequence be associated with a name.
-		\par
-		For example, if we wanted to access the first element in seq1 from Example 3.2.0,
-		and override the value to 5, it would look like this:
-		\par
-		Example 3.2.1:
-		\begin{verbatim}
-			seq1[0] : 5
-		\end{verbatim}
-		\par
-		Similarly if we wanted to add a fifth value (let's say, the number 6?) to seq1,
-		here's how it would look:
-		\par
-		Example 3.2.2:
-		\begin{verbatim}
-			seq1[4] : 6
-		\end{verbatim}
-		\par
-		Please note that indices of FHiCL sequences begin at zero, not one.
 \chapter{Include Statements}
 	In order to import values from one FHiCL document into another,
 	use of the FHiCL include statement is necessary.
@@ -358,6 +395,7 @@
 	a FHiCL parser will treat the faulty include statement as a comment.
 	\par
 	If the file name within the quotes is invalid, however, the include statement will \emph{not} be treated as a comment.
+
 \chapter{References}
         If at any point it becomes necessary to associate a name with a value of an existing name-value pair, or to
         assign an existing value as a member of a sequence,
@@ -423,39 +461,39 @@
         Essentially this means that the reference to \emph{x} here will have the value
         of \emph{ x : 6 }.
 
-\chapter{Prologue}
-	FHiCL documents may contain prologue sections which may contain declarations used to create
-	a standard configuration for a FHiCL document.
-	\par
-	The beginning of a prologue section is denoted by:
-	\emph{BEGINPROLOGUE}
-	and the end is denoted by:
-	\emph{ENDPROLOGUE}.
-	\par
-	Example 6.1.0:
-	\begin{verbatim}
-		BEGINPROLOGUE
-		   x : 5
-		   y : 6
-		ENDPROLOGUE
-	\end{verbatim}
-	All elements declared between the beginning and the end 
-	do not exist within the parameter set unless specifically
-	referenced within the document.
-	\par
-	Elements within a prologue section may be referenced,
-	but may not be modified in any way otherwise.
-	For instance, take the prologue section from Example 5.1.0.
-	\par
-	We can reference both \emph{x} and \emph{y} in the prologue section by using the reference notation:
-	\par
-	Example 6.1.1:
-	\begin{verbatim}
-		z : @local::x
-		u : @local::y
-	\end{verbatim}
-	\par
-	However we cannot modify x or y in any way.
+\chapter{Prologs}
+        FHiCL documents may contain \emph{prolog} sections,
+	which contain declarations used to create a standard configuration for a FHiCL document.
+        \par
+        The beginning of a \emph{prolog} section is denoted by:
+        \emph{BEGINPROLOGUE}
+        and the end is denoted by:
+        \emph{ENDPROLOGUE}.
+        \par
+        Example 6.1.0:
+        \begin{verbatim}
+                BEGINPROLOGUE
+                   x : 5
+                   y : 6
+                ENDPROLOGUE
+        \end{verbatim}
+        All elements declared between the beginning and the end
+        do not exist within the parameter set unless specifically
+        \emph{referenced} within the document.
+        \par
+        Elements within a prologue section may be referenced,
+        but may not be modified in any way otherwise.
+        For instance, take the prologue section from Example 5.1.0.
+        \par
+        We can reference both \emph{x} and \emph{y} in the prologue section by using the reference notation:
+        \par
+        Example 6.1.1:
+        \begin{verbatim}
+                z : @local::x
+                u : @local::y
+        \end{verbatim}
+        \par
+        However we cannot modify x or y in any way.
         Access to values within a prolog works exactly like it does when the referenced value is in the document.
         You use the reference notation \emph{@local::} folowed by the target value you wish to reference.
         \par
@@ -464,36 +502,6 @@
         Statements that appear to be attempting to override prolog values are treated as new associations, therefore creating
         new associations in the parameter set.
 
-\chapter{Document}
-	Any file with the suffix ".fcl" is considered to be a FHiCL document.
-	FHiCL documents are unparsed text files containing syntactical description of a parameter set.
-	\par
-	FHiCL document closely resemble FHiCL tables in that they are, for the most part,
-	containers of name-value pairs.
-	Unlike tables, however, FHiCL documents do not have braces around their elements
-	and documents may contain prologue sections.
-	\par
-	A valid FHiCL document might look something like this:
-	\par
-	Example 7.1.0:
-	\begin{verbatim}
-		BEGINPROLOGUE
-		   x : 5
-		   y : 6
-		ENDPROLOGUE
-		
-		tab1 :
-		{
-		   a : 1
-		   b : 2
-		   c : 3
-   		}
-		z : @local::x
-		y : @local::y
-	\end{verbatim}
-	\par
-	FHiCL documents, once completed, may be run through any one of a variety of programming lanuage bindings
-	in order to produce a parameter set from the FHiCL notation within the document.
 \chapter{Examples of FHiCL Documents and Their Resulting Parameter Sets}
 	\textbf{Example 1:}	
 	\begin{verbatim}
