@@ -46,15 +46,16 @@
 	and limitations of FHiCL.
 
 \chapter{Documents}
-        Any file with the suffix ".fcl" is considered to be a FHiCL document.
-        FHiCL documents are unparsed text files containing syntactical description of a parameter set.
+        Any file with the suffix ".fcl" is considered to be a FHiCL \emph{document}.
+        \emph{Documents} are unparsed text files containing syntactical description of a parameter set.
         \par
-        FHiCL document closely resemble FHiCL tables in that they are, for the most part,
-        containers of \emph{name : value} pairs.
-        Unlike tables, however, FHiCL documents do not have braces around their elements
-        and documents may contain \emph{prolog} sections.
+        A \emph{document} is, for the most part,
+        a container of \emph{name : value} pairs.
+	\par
+	A \emph{document} may also contain \emph{prolog} sections,
+	which are described in-depth later in this guide.
         \par
-        A valid FHiCL document might look something like this:
+        A valid FHiCL \emph{document} might look something like this:
         \par
         Example 7.1.0:
         \begin{verbatim}
@@ -73,8 +74,8 @@
                 y : @local::y
         \end{verbatim}
         \par
-        FHiCL documents, once completed, may be run through any one of a variety of programming lanuage bindings
-        in order to produce a parameter set from the FHiCL notation within the document.
+        \emph{Documents}, once completed, may be run through any one of a variety of programming lanuage bindings
+        in order to produce a parameter set from the FHiCL notation within the \emph{document}.
 
 \chapter{Comments}
 	FHiCL comment notation is a combination of the syntax used in several popular scripting languages and the C/C++ comment syntax.
@@ -92,7 +93,6 @@
 	FHiCL comments terminate at end of line. 
 	Therefore, it is possible to have a margin comment after a \emph{name : value} pair.
 	\section{Examples}
-		Below are several examples of valid comment syntax in FHiCL.
 		\par
 		Example 2.1.0:
 		\begin{verbatim}
