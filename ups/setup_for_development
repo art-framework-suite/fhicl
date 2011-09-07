@@ -62,7 +62,7 @@ test -n "$db" && setenv TOYCMAKE_SOURCE `dirname $db`
 tnotnull TOYCMAKE_BUILD && set_ thisdir=$TOYCMAKE_BUILD || set_ thisdir=`pwd`
 test -n "$thisdir" && setenv TOYCMAKE_BUILD $thisdir
 test -d "$thisdir/lib" || mkdir -p $thisdir/lib
-echo The workng build directory is $thisdir
+echo The working build directory is $thisdir
 
 tnotnull TOYCMAKE_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${TOYCMAKE_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`; setenv LD_LIBRARY_PATH ${TOYCMAKE_BUILD}/lib:${LD_LIBRARY_PATH}
 

@@ -14,7 +14,7 @@
 cmake_minimum_required (VERSION 2.6)
 # project name
 project(fhicl)
-# the ups convention is that product names are all lower case, but this is a choices
+# the ups convention is that product names are all lower case, but this is a choice
 set( product fhicl )
 set( version v1_02_00 )
 SET (qualifier a1)
