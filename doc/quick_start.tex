@@ -1,565 +1,811 @@
 \documentclass{memarticle}
-\usepackage{marvosym} % to define \MVAt
 
+\usepackage{marvosym}%          to define \MVAt
 
-
-%\title{Quick Start Guide for the Fermilab Hierarchical Configuration Language (FHiCL)}
-%\date{}
-%\author{Ryan Putz}
-
-\newcommand{\docnumber}{1}
-
-%\newcommand{\doctitle}%
-%  {{\color{magenta}Quick Start Guide for the Fermilab Hierarchical Configuration Language(FhICL)}}
+\newcommand{\fhicl}%
+ {FHiCL\xspace}
 
 \newcommand{\shorttitle}%
- {FHiCL Quick Start Guide}
+ {\fhicl Quick Start Guide}
 
-%\newcommand{\authors}%
-%  {
-%  Ryan Putz
-%  }
+\newcommand{\docnumber}{\shorttitle}
 
-%\hypersetup%
-%  { pdfauthor={}%
-%  , pdftitle={\doctitle}%
-%  , date={\date{}}	
-%  , pdfkeywords={}%
-%  , pdfsubject={}%
-%  }
+\newcommand{\doctitle}{Quick Start Guide for \fhicl:\\
+the Fermilab Hierarchical Configuration Language}
 
-\title{Quick Start Guide for the Fermilab Hierarchical Configuration Language (FHiCL)}
 \date{\today}
-\author{Ryan Putz}
 
-\tightlists
+\newcommand{\authors}{The ART Development Team:\\
+  Walter E. Brown%
+, Chris Green%
+, Jim Kowalkowski%
+, Marc Paterno%
+, Ryan Putz%
+}
+
+\firmlists%\tightlists
+
 \begin{document}
-%\topmatter
-\setlength{\parindent}{0in}
-\maketitle
-\newpage
-\tableofcontents
-\newpage
+\flushbottom
+\raggedbottomsectiontrue
+\thispagestyle{empty}
+\pagenumbering{arabic}
+
+\begin{center}
+  {\LARGE\doctitle}
+  { \vskip\baselineskip }
+  { \authors }
+\end{center}
+\noindentcolorrule{Red}
+\tableofcontents*
+\noindentcolorrule{Red}
+
+
 \chapter{Introduction}
-	The purpose of this document is to explain and demonstrate the major syntax and semantics
-	of the language so that users may feel comfortable with the features
-	and limitations of FHiCL.
+
+The purpose of this document
+is to explain and demonstrate
+the major syntax and semantics
+of the Fermilab Hierarchical Configuration Language, \fhicl%
+\footnote{%
+  The customary pronounciation is /fIkl/.%
+},
+so that users may become comfortable
+with its features and intended use.
+
+The end product of many years
+of experience with other configuration languages and notation,
+\fhicl has been carefully designed
+to allow its users to express, record, and retrieve
+sets of software parameters
+used to \term{configure}
+(prepare for a particular purpose)
+a program's execution.
+We will use the \term{parameter set}
+to denote any specific collection
+of named values
+accessible to a user's program
+while it is running;
+a \fhicl \term{document}
+is a textual representation
+of such a parameter set.
+Two or more \fhicl documents
+are said to be \term{equivalent}
+if they lead to identical parameter sets.
+
+Depending on the programming language
+used to write the user program,
+one of several software subsystems is used
+to produce a parameter set
+from a given \fhicl document.
+Each such subsystem is known as a \term{binding}
+of the \fhicl specification
+to the programming language,
+and provides for the analysis and interpretation
+of \fhicl documents.
+
+While it is up to each binding
+to specify how users interface
+to the parameter sets produced by that binding,
+it is fundamental that
+users be able to query a parameter set
+by providing it a name
+(in the form of a string)
+in order to obtain the value corresponding to that name.
+Further,
+a parameter set
+must be capable of producing a document
+that is equivalent
+to the original document
+that gave rise to that parameter set.
+
 
 \chapter{Documents}
-        Any file with the suffix ".fcl" is considered to be a FHiCL \emph{document}.
-        \emph{Documents} are unparsed text files containing syntactical description of a parameter set.
-        \par
-        A \emph{document} is, for the most part,
-        a container of \emph{name : value} pairs.
-	\par
-	A \emph{document} may also contain \emph{prolog} sections,
-	which are described in-depth later in this guide.
-        \par
-        A valid FHiCL \emph{document} might look something like this:
-        \par
-        Example 7.1.0:
-        \begin{verbatim}
-                BEGINPROLOGUE
-                   x : 5
-                   y : 6
-                ENDPROLOGUE
-                
-                tab1 :
-                {
-                   a : 1
-                   b : 2
-                   c : 3
-                }
-                z : @local::x
-                y : @local::y
-        \end{verbatim}
-        \par
-        \emph{Documents}, once completed, may be run through any one of a variety of programming lanuage bindings
-        in order to produce a parameter set from the FHiCL notation within the \emph{document}.
+
+\section{Text}
+
+A \fhicl document is simply a sequence of characters
+(\ie text),
+structured as described below,
+and is commonly stored in a file
+whose name is conventionally suffixed \fclcode{.fcl}.
+For example,
+\fclcode{my_config.fcl} might be the name of such a file.
+Any conventional text editor
+(\eg emacs, vi, nedit, \ldots)
+may be used to create or to update a \fhicl file.%
+\footnote{%
+  Note that \fhicl documents
+  need not be represented via any file.
+  A binding may, for example,
+  obtain a \fhicl document
+  from a database,
+  via a string in a conventional programming language,
+  or
+  via any other mechanism that can denote simple text.
+  A binding is free
+  to support as many document sources
+  as it wishes.%
+}
+
+\section{Name-value pairs}
+
+A document consists principally
+of \term{name-value pairs}.%
+\footnote{%
+  A name-value pair is sometimes known
+  as an \term{association},
+  because parameter set lookup
+  is designed to take a name
+  and retrieve the associated value.
+  In this Guide
+  we will usually prefer the simpler \term{pair} nomenclature.%
+}
+There may be as many or as few such pairs
+as desired.%
+\footnote{%
+  A document consisting of no name-value pairs
+  is said to be \term{empty},
+  as is the parameter set
+  that a binding would generate
+  from such a document.%
+}
+In each pair,
+a colon (\verb|:|) separates the \term{name}
+from the corresponding \term{value}.
+
+At least one blank, tab, or newline character
+(collectively known as \term{whitespace})
+must separate one pair from the next.
+The following document,
+consisting of three name-value pairs,
+uses the minimum required whitespace:
+\Needspace{.17in}
+\begin{fcllisting}[texcl,escapechar=`]
+n:1 pi:3.14159 label:"horizontal axis"
+\end{fcllisting}
+
+\section{Optional whitespace}
+
+Within a \fhicl document,
+additional whitespace
+may be used
+at the discretion of the author.%
+\footnote{%
+  Such optional whitespace
+  is commonly used
+  to produce indentation or alignment.%
+}
+A binding will ignore
+any such optional whitespace
+while producing a parameter set
+from the document.
+
+The following document
+is equivalent to the single-line document shown above.
+Consisting of the same three name-value pairs,
+this variation employs extra whitespace
+to improve readability
+by (a) placing each pair on an individual line
+and (b) aligning the values:
+\Needspace{0.5in}
+\begin{fcllisting}[texcl,escapechar=`]
+n     : 1
+pi    : 3.14159
+label : "horizontal axis"
+\end{fcllisting}
+
+\section{Preview of other features}
+
+In addition to name-value pairs,
+a \fhicl document may contain
+\term{comments} (commonly also known as \term{remarks} or \term{annotations})
+as well as \term{prolog} sections.
+Further,
+a document's contents may be spread over several files
+via the \fhicl \term{include} mechanism.
+Each of these features will be introduced
+in this Guide.
+We will also provide more details
+about \fhicl{}'s names and values.
+
 
 \chapter{Comments}
-	FHiCL comment notation is a combination of the syntax used in several popular scripting languages and the C/C++ comment syntax.
-	FHiCL comments have two notations:
-	\begin{itemize}
-		\item The pound/hash sign ( \# )
-		\item Two foreslashes ( // )
-	\end{itemize}
-	\par
-	The former notation is the same notation used in such programming/scripting languages as
-	PHP, Perl, Python, and Ruby.
-	\par
-	The latter notation is the C++ inline comment notation.
-	\par
-	FHiCL comments terminate at end of line. 
-	Therefore, it is possible to have a margin comment after a \emph{name : value} pair.
-	\section{Examples}
-		\par
-		Example 2.1.0:
-		\begin{verbatim}
-			#This is a comment
-			//This is also a comment
-			foo : bar #this is a margin comment
-			foo1 : bar2 //and so is this
-		\end{verbatim}
-\chapter{Associations}
-        In most programming languages there is the idea of an \emph{assignment}.
-        In FHiCL,  instead of assigning a value to a name,
-        we are \emph{associating} a \emph{value} with a \emph{name};
-        much like the relationship between a keys and values in a C++ std::map or a Python dictionary.
-        \par
-        The basic association is the backbone of the FHiCL syntax.
-        A basic FHiCL association has three parts:
-        \begin{enumerate}
-                \item A name
-                \item The colon symbol ( : )
-                \item A value
-        \end{enumerate}
-        \par
-        Or in EBNF it would look like this:
-        \begin{verbatim}
-                association => name COLON value
-        \end{verbatim}
-        \par
-        There are slight variations on this model used throughout the language,
-        but the basic premise does not change.
-        We will see examples of these variations later on.
-        \section{Examples}
-                Let's say that we want to declare three new FHiCL elements: a, b, c
-                and associate with these elements, the values of 1, 2, 3, respectively.
-                Here is how that would look in a valid FHiCL document:
-                \par
-                Example 1.4.0:
-                \begin{verbatim}
-                        a : 1
-                        b : 2
-                        c : 3
-                \end{verbatim}
-                \par
-                Now we have three new FHiCL name-value pairs.
-                Please note that in \emph{most} aspects of FHiCL,
-                the use of whitespace is optional.
-                \par
-                So this would also be a valid way to write the associations in Example 1.0:
-                \par
-                Example 1.4.1:
-                \begin{verbatim}
-                        a:1
-                        b:2
-                        c:3
-                \end{verbatim}
-                \par
-                Here are a few more examples of valid FHiCL associations using various types of strings:
-                \par
-                Example 1.4.2:
-                \begin{verbatim}
-                        dog : "Wish Bone"
-                        cat : 'QT McWhiskers'
-                        fish : Klaus
-                \end{verbatim}
-                Please note that unquoted string values must be \emph{simple} in that they may only contain
-                the characters A-Z, a-z, or underscores (\_).
-                Double-quoted strings may contain special escaped characters,
-                and single-quoted strings are quoted verbatim.
+
+Document providers often wish
+to annotate the document's contents.
+For example,
+it is common to provide a provenance
+giving the original author's name and date,
+followed by a revision history.
+Other annotations include
+introductory overviews for each section
+of a document,
+or even brief descriptions
+of individual name-value pairs.
+\fhicl comments can serve all of these purposes,
+and more.
+
+\fhicl provides two ways to \term{introduce} (start) a comment:
+\begin{itemize}
+  \item With a single \fclcode{#} character,%
+          \footnote{%
+          This notation is adopted
+          from such scripting languages
+          as bash, perl, and python.
+          The introductory \fclcode{#} character
+          is known variously as a
+          \term{pound sign},
+          \term{hash mark},
+          \term{sharp},
+          or \term{octothorpe}%
+          .}
+  or else
+  \item With two consecutive forward slashes (\fclcode{//}).\footnote{%
+          This notation is adopted
+          from such programming languages
+          as BCPL and \cpp{}%
+          .}
+\end{itemize}
+Either or both of these comment introductions
+may be used within any \fhicl document.
+
+The remainder of the line
+is the \term{body} of the comment,
+and provides whatever information
+the author may desire.
+The comment implicitly terminates
+at the end of the line,
+although an author may choose to continue his annotation
+onto any number of additional comments
+on subsequent lines.
+
+The following document illustrates
+the various forms
+that a \fhicl comment may take.
+\Needspace{0.67in}
+\begin{fcllisting}[texcl,escapechar=`]
+# This is a comment
+// This is also a comment
+foo  : "bar"   # this is a comment "in the margin" ...
+foo2 : "bar2" // ... and so is this
+\end{fcllisting}
+
 
 \chapter{Names}
-	FHiCL names are simple sequences of characters.
-	Names must begin with an alphabetic character,
-	or with an underscore.
-	\par
-	Illustrated in Example 1.1.0,
-	you will find a list of examples of valid FHiCL name values.
-	\par
-	Example 1.1.0:
-	\begin{verbatim}
-		a
-		name
-		the_dog
-		_a_cat
-		a_fish_
-		_a_bird_
-	\end{verbatim}
+
+\section{Spelling}
+
+The spelling rules for \fhicl names
+match the spelling rules
+for identifiers in many programming languages:
+\begin{itemize}
+  \item Each name begins with a letter
+        or with a \fclcode{_} (underscore) character.
+  \item The name may be spelled
+        with as many additional consecutive
+        letters, underscores, or digits as desired.
+        No other characters
+        (\eg punctuation or whitespace)
+        may be embedded within a name.
+  \item Capitalization matters:
+        the name \fclcode{X} is not the same name
+        as the uncapitalized name \fclcode{x}.
+        Similarly,
+        \fhicl treats the names
+        \fclcode{Hello}, \fclcode{HELLO}, and \fclcode{hello}
+        as three distinct, unrelated names.
+\end{itemize}%
+
+\section{Name reuse}
+
+Consider the following document,
+noting especially the reuse of the name \fclcode{a}.
+When a binding processes this document,
+how many name-value pairs
+will the resulting parameter set contain?
+\Needspace{0.5in}
+\begin{fcllisting}[texcl,escapechar=`]
+a : 1
+b : 2
+a : 3
+\end{fcllisting}
+The answer is two.
+\fhicl provides that,
+if a document has two name-value pairs
+that have a name in common,
+the value in the later pair
+\term{overrides} (supercedes) the earlier one.\footnote{%
+  If more than two pairs
+  have a name in common,
+  the second pair overrides the first
+  as described above
+  until the third such pair is encountered.
+  Then the third pair overrides the second
+  until a fourth pair is encountered,
+  and so on.
+  In this way,
+  the last pair using that name
+  will ultimately override all the earlier ones
+  with the same name.%
+}
+Therefore, in the above example,
+when \fclcode{a} is looked up in the parameter set,
+the associated value will be found to be \fclcode{3}.
+
+\section{References}
+
+Within some documents,
+a common scenario
+is to require that
+two (or more) name-value pairs
+with distinct names
+nonetheless provide the same value.
+The most obvious approach
+is simply to duplicate the value
+in each pair:
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+m : 1
+n : 1
+\end{fcllisting}
+However,
+as is true when writing programs,
+such duplication becomes problematic over time
+because it is not obvious by inspection
+that these two values
+are intended always to be identical.
+As a result,
+if a future update
+were to change the value associated with \fclcode{m},
+the required corresponding change to \fclcode{n}
+could be easily overlooked,
+especially if there were a great many intervening lines.
+
+To help avoid such an unhappy scenario,
+\fhicl allows a value to refer
+to a previously-provided value:
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+m : 1
+n : @local::m
+\end{fcllisting}
+A construction such as \fclcode{@local::m}
+is known as a \fhicl \term{reference}.
+Each reference consists of the prefix \fclcode{@local::}
+followed by a name (here, \fclcode{m})
+from an earlier name-value pair.%
+\footnote{%
+  The binding will report an error during processing
+  if the name hasn't yet been seen.%
+}
+
+When a binding processes such a reference,
+the name is looked up
+among the name-value pairs processed so far,
+and the corresponding value
+\term{substituted} (used in place of the reference).
+As a result,
+the two pairs can no longer get out of sync,
+as any change to the value of the first
+will automatically be propagated to the second.
+
+
 \chapter{Values}
-	FHiCL values can be extremely diverse.
-	FHiCL values are any one of the following:
-	\begin{itemize}
-		\item Atom
-		\item Table
-		\item Sequence
-	\end{itemize}
-	\section{Atoms}
-		\begin{itemize}
-			\item Literal
-			\item Number
-			\item String
-		\end{itemize}
-		\subsection{Literal}
-			FHiCL literals consist of the two boolean values,
-			\emph{true} and \emph{false},
-			as well as \emph{nil},
-			which is the FHiCL implementation of \emph{null}
-		\subsection{Number}
-			FHiCL numbers are made up of one of the following:
-			\begin{itemize}
-				\item Signed or unsigned integers.
-				\item Signed or unsigned infinity.
-				\item Real numbers.
-			\end{itemize}
-			\par
-			Leading zeros are allowed in FHiCL numbers, 
-			however please note that any leading zeros will be stripped in the resulting parameter set.
-		\subsection{String}
-	        	\par
-        		Single-quoted strings are taken verbatim
-        		and may contain escaped or printable characters as well as whitespace.
-        		\par
-        		Double-quoted strings may contain escaped and printable characters,
-        		but are \emph{not} quoted verbatim.
-        		Escaped characters are processed in the string.
-        		Double-quoted strings may contain whitespace.
-       			\par
-        		In Example 1.2.0, there are a few examples of valid FHiCL values.
-        		Example 1.2.0:
-        		\begin{verbatim}
-                		a
-                		ab
-                		string
-                		"string"
-                		'string'
-                		'string\n'
-                		12345
-                		"123abc"
-                		'123abc'
-        		\end{verbatim}
 
-	\section{Tables}
-                A FHiCL table is a container for name-value pairs
-                and is denoted by (possibly empty) braces.
-                \par
-                Example 3.1.0
-                \begin{verbatim}
-                        {
-                           a : 5
-                           b : 6
-                           c : 7
-                        }
-                \end{verbatim}
-                \par
-                Elements of a FHiCL table may \emph{not} be comma-separated.
-                The elements may be separated by either whitespace or newline.
-                Therefore it would also be valid to write \emph{table1} like this:
-                \par
-                Example 3.1.1
-                \begin{verbatim}
-                        { a : 5 b : 6 c : 7 }
-                        OR
-                        { a:5 b:6 c:7 }
-                        OR
-                        {
-                           a:5
-                           b:6
-                           c:7
-                        }
-                        NOT
-                        { a:5, b:6, c:7}
-                \end{verbatim}
-                \par
-                FHiCL tables also have a unique quality in that they may contain comments.
-                This is true only if the elements of the table are line-separated.
-                Example 3.1.2
-                \begin{verbatim}
-                        {
-                           a : 5
-                           #This is a comment
-                           b : 6
-                           //This is a comment
-                        }
-                        NOT
+\section{Classifications}
 
-                        { a:5 #this is a comment b:6}
-                \end{verbatim}
-                \par
-                The second case is invalid since FHiCL comments terminate at end of line.
-                This results in the closing brace for the table being interpreted as part of the comment.
+At a high level,
+each \fhicl value can be classified
+as either \term{atomic} or \term{structured}.
+An \term{atom} (atomic value)
+is either
+  a \term{nil},
+  a \term{boolean},
+  a \term{number},
+or
+  a \term{string},
+while a structured value is either
+  a \term{complex} number,
+  a \term{sequence},
+or
+  a \term{table}.
+Each of these is further described in the following sections.
 
-        \section{Sequences}
-                A FHiCL sequence is a container of values
-                and is denoted by (possibly empty) brackets.
-                \par
-                Example 3.2.0:
-                \begin{verbatim}
-                        [ 1, 2, 3, 4 ]
-                        
-                        OR
+\section{Nil value}
 
-                        [
-                           1,
-                           2,
-                           3,
-                           4
-                        ]
-                \end{verbatim}
-                \par
-                Elements of a sequence \emph{must} be separated by commas.
-                Each element in a sequence is a value, and so,
-                it is possible to have a sequence of tables such as:
-                \begin{verbatim}
-                   seq:[ { a:1 b:2 }, { c:3 d:4 } ]
-                \end{verbatim}
-                \par
-                Also, please note that FHiCL sequences may not contain name-value pairs.
-                \par
-                FHiCL sequences may not contain comments.
-\chapter{Hierarchical Names}
-        \par
-        There is also an advanced type of FHiCL name called
-        \emph{hierarchical name} or \emph{hname}, for short.
-        These hnames are compound names linked together through the use of
-        a \emph{dot index} or a \emph{bracket index}.
-        Hnames are used to access members of FHiCL containers
-        and their associated values.
-	\section{Dot Index}
-		A \emph{dot index} is the operator \emph{"."} used to denote access to the elements of a FHiCL table.
-		For instance, assume that we have the following table:
-		\par
-		\begin{verbatim}
-			tab1:{ a:5 b:6 }
-		\end{verbatim}
-		In order to access either \emph{a} or \emph{b} in \emph{tab1},
-		the use of the \emph{dot index} is required, as such:
-		\begin{verbatim}
-			tab1.a
-			tab1.b
-		\end{verbatim}
-		The result of each statement will be the \emph{value} associated with each \emph{name} in the table \emph{tab1}.
-	\section{Bracket Index}
-		A \emph{bracket index} is the operator \emph{"[ ]"} used to denote access to the elements of a FHiCL sequence.
-		For example, take the folowing FHiCL sequence:
-		\par
-		\begin{verbatim}
-			seq1:[ 1, 2, 3 ]
-		\end{verbatim}
-		\par
-		In order to access any of the three elements in \emph{seq1},
-		the use of the \emph{bracket index} is required, like so:
-		\begin{verbatim}
-			seq1[0]
-			seq1[1]
-			seq1[2]	
-		\end{verbatim}
-		The integer in between the brackets is the \emph{index} of the element being accessed.
+The literal \fclcode{nil}
+serves as a placeholder value,
+distinct from all other \fhicl values.
+It is suitable for constructing a name-value pair
+when no other \fhicl value will do.
+\Needspace{0.17in}
+\begin{fcllisting}[texcl,escapechar=`]
+higgs : nil
+\end{fcllisting}
 
-\chapter{Overrides}
-	In FHiCL, the term \emph{override} has special meaning and its use is two-fold:
-	\begin{enumerate}
-		\item Reassociation of an existing name to a new value.
-		\item Creation of a new element within a table or sequence.
-	\end{enumerate}
-	\par
-	The syntax for a FHiCL override statement is identical to that of a FHiCL association.
-	The only difference between the two is that in an override statement,
-	the \emph{name} portion of the statement must be the name of a pre-existing element
-	which exists at the same level of scope as the override statement.
-	\par
-	Please note that the use of an \emph{hname} allows an override statement to descend through layers of scope,
-	but there is no way to ascend through layers of scope.
-	\par
-	Example 2.0.0:
-	\begin{verbatim}
-		x : 5
-		x : 6
-	\end{verbatim}
-	\par
-	Example 2.0.1
-	\begin{verbatim}
-		tab1: { a:1 b:2 }
-		tab1.c : 3
-	\end{verbatim}
-\chapter{Include Statements}
-	In order to import values from one FHiCL document into another,
-	use of the FHiCL include statement is necessary.
-	The behavior of this include statement is similar,
-	and yet still different from the C/C++ include statement from which it was borrowed.
-	\par
-	The syntax for a FHiCL include statement begins with a pound or hash symbol (\#),
-	followed by the unquoted string "include".
-	The include is followed by \emph{exactly one white space}
-	and then a quoted string containing the full name of the target FHiCL document.
-	\par
-	Example 4.1.0:
-	\begin{verbatim}
-		#include "filename.fcl"
-	\end{verbatim}	
-	\par
-	Since the include statement shares a common starting character with that of one of the FHiCL comment notations,
-	if the syntax of the include statement is incorrect,
-	a FHiCL parser will treat the faulty include statement as a comment.
-	\par
-	If the file name within the quotes is invalid, however, the include statement will \emph{not} be treated as a comment.
+\section{Boolean values}
 
-\chapter{References}
-        If at any point it becomes necessary to associate a name with a value of an existing name-value pair, or to
-        assign an existing value as a member of a sequence,
-        the use of the FHiCL \emph{Reference} notation is needed.
-        \par
-        There are two versions of the reference notation in FHiCL, one being a local reference,
-        the other being a call or fetch to a predetermined database:
-        \begin{itemize}
-                \item @local::
-                \item @db::
-        \end{itemize}
-        \par
-        References may appear wherever a value normally is expected.
-        The only prerequesite being that the name used within the reference notation must be the name of an existing element
-        either within the current FHiCL document
-        or within the database.
-        \par
-        Example 5.1.0:
-        \begin{verbatim}
-                x : 5
-                y : @local::x
-                z : @db::t
-        \end{verbatim}
-        \par
-        In this example, the value of \emph{y} is a reference to the pre-existing name-value pair \emph{x : 5}.
-        The element named \emph{z}'s value is a reference to a name-value pair with name \emph{t}
-        which is to be found in a database.
-        \par
-        The names used within a FHiCL reference notation must be extremely specific in order to reference the correct element.
-        \par
-        Example 5.1.0:
-        \begin{verbatim}
-                x : 5
-                y : @local::x
-                z : @db::t
-        \end{verbatim}
-        \par
-        In this example, the value of \emph{y} is a reference to the pre-existing name-value pair \emph{x : 5}.
-        The element named \emph{z}'s value is a reference to a name-value pair with name \emph{t}
-        which is to be found in a database.
-        \par
-        The names used within a FHiCL reference notation must be extremely specific in order to reference the correct element.
-        \par
-        Example 5.1.1:
-        \begin{verbatim}
-                x : 5
-                x : 6
-                tab1 :
-                {
-                   x : 1
-                   y : 2
-                   z : 3
-                }
-                y : @local::x
-        \end{verbatim}
-        \par
-        In Example 5.1.1, we start with a definition \emph{ x : 5 },
-        and then we override the value of \emph{x} with the number 6.
-        The value of \emph{y} in this case will be a reference to the
-        most recently encountered instance of \emph{x} within the same scope
-        as \emph{y}.
-        \par
-        Essentially this means that the reference to \emph{x} here will have the value
-        of \emph{ x : 6 }.
+The literals \fclcode{true} and \fclcode{false}
+correspond to the customary truth values.
+\Needspace{0.17in}
+\begin{fcllisting}[texcl,escapechar=`]
+debug : true
+\end{fcllisting}
+
+\section{Numeric values}
+
+\subsection{Form}
+
+As in most programming languages,
+a \fhicl number
+can have up to four parts:
+\begin{itemize}
+  \item The \term{sign} part consists of
+        a single \fclcode{+} or \fclcode{-} character,
+  \item The \term{whole} part consists of
+        a non-empty sequence of digits,
+        such as \fclcode{0} or \fclcode{123};
+        any superfluous leading zeroes
+        will be ignored by the binding.
+  \item The \term{fraction} part consists of
+        a single \fclcode{.} character
+        followed by
+        a possibly empty sequence of digits.
+  \item The \term{exponent} part consists of
+        a single \fclcode{e} or \fclcode{E} character,
+        optionally followed by a sign,
+        followed by
+        a non-empty sequence of digits.
+        Examples include \fclcode{E5} and \fclcode{e-23}.
+\end{itemize}
+All parts are optional,
+except that there must be
+either a whole part or a fraction part.
+
+In addition to the above,
+\fhicl treats the literal \fclcode{infinity}
+as a number.
+A sign
+may optionally precede this literal.
+
+\subsection{Interpretation}
+
+Although the nomenclature varies,
+programming languages typically distinguish
+among real values, unsigned integer values, and signed integer values.
+To the extent possible
+in the underlying programming language,
+each \fhicl binding
+must, without error, interpret each \fhicl number:
+\begin{itemize}
+  \item as any kind of real value upon request;
+  \item as an unsigned integer value upon request
+        if the number can be equivalently rewritten
+        using no more than seven digits;
+  and
+  \item as a signed integer value upon request
+        if the number can be equivalently rewritten
+        using only an optional \fclcode{-} sign
+        followed by no more than seven digits.
+\end{itemize}
+\Needspace{0.67in}
+\begin{fcllisting}[texcl,escapechar=`]
+pi : 3.1415926   # strictly a real value
+x  : 1.23e2      # same as 123: a signed, unsigned, or real value
+y  : -.45600e+3  # same as -456: a signed or real value
+z  : -infinity   # the most negative real value
+\end{fcllisting}
+
+\section{String values}
+
+A \fhicl string is written as a sequence of characters
+usually enclosed within matching quotation marks.
+The quotation marks may be omitted,
+but only if the string
+contains no whitespace, punctuation, or other special characters. 
+Strings that begin with a digit must be quoted
+unless they have the form of a number
+as described in the previous section.
+\Needspace{1.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+s1: a
+s2: ab
+s3: string
+s4: "string"
+s5: 'string'
+s6: 12345
+s7: "123abc"
+s8: '123abc'
+\end{fcllisting}
+
+If the string is double-quoted,
+\term{escaped characters} will be interpreted as follows:
+  \fclcode{\\n} as a newline character,
+  \fclcode{\\t} as a tab,
+  \fclcode{\\'} as an apostrophe,
+  \fclcode{\\"} as a double-quote,
+and
+  \fclcode{\\\\} as a (single) backslash.\footnote{%
+                 The binding will produce a diagnostic
+                 for any other escaped characters.%
+                 }
+If the string is single-quoted,
+all characters are taken verbatim;
+escaped characters have no special meaning.
+
+\section{Complex values}
+
+A \fhicl complex value is written
+as two numbers
+separated by a comma
+and surrounded
+by parentheses:
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+c1: (1, 2)
+c2: (1.23, -3.1415926)
+\end{fcllisting}
+Whitespace before and after each number is optional.
+
+\section{Sequence values}
+
+A \fhicl sequence starts with a left bracket
+and ends with a right bracket.
+These brackets surround
+a comma-separated list
+consisting of an arbitrary number
+of \fhicl values.
+Whitespace before and after each value is optional;
+thus, the following three sequences are considered identical.
+\Needspace{1.67in}
+\begin{fcllisting}[texcl,escapechar=`]
+q1: [ 1, 2, 3, 4 ]
+q2: [ 1, 2
+    , 3, 4
+    ]
+q3: [
+      1,
+      2,
+      3,
+      4
+    ]
+\end{fcllisting}
+
+Note that \fhicl sequences 
+may be \term{heterogeneous};
+that is,
+the \term{elements} (values in a sequence)
+may be classified differently from each other.
+For example,
+some may be atomic while others are structured:
+\Needspace{0.50in}
+\begin{fcllisting}[texcl,escapechar=`]
+q4: [ 1, (2, 3.14), "a b", nil ]  # 4 elements
+q5: [ ]                           # 0 elements (empty)
+q6: [ @local::q4, @local::q5 ]    # 2 elements
+\end{fcllisting}
+However, any given binding
+can support such heterogeneity
+only to the extent
+that the underlying programming language supports it.\footnote{%
+  This is rarely a restriction
+  because, in practice,
+  sequences tend overwhelmingly to be \term{homogeneous}.%
+}
+
+Individual elements may be identified
+(in a reference, for example)
+via a \term{subscript} (also known as an \term{index}) notation:
+\Needspace{0.50in}
+\begin{fcllisting}[texcl,escapechar=`]
+const: [ 2.7182818, 3.1415926 ]
+e    : @local::const[0]
+pi   : @local::const[1]
+\end{fcllisting}
+The same notation can be used to override an element,
+or even to extend a sequence with an additional element:
+\Needspace{0.50in}
+\begin{fcllisting}[texcl,escapechar=`]
+fib: [ 0, 1, 1, oops, 3, 5 ]
+fib[3] : 2
+fib[6] : 8
+\end{fcllisting}
+
+\section{Table values}
+
+A \fhicl table starts with a left brace
+and ends with a right brace.
+Much like a document,
+the body of a \fhicl table
+consists of name-value pairs.
+Unlike a document,
+a \fhicl table can't have a prolog.
+The following document,
+for example,
+consists of a single name-value pair
+whose value is a table consisting of three pairs:
+\Needspace{0.67in}
+\begin{fcllisting}[texcl,escapechar=`]
+t : {  a : 5
+       b : 6
+       c : 7
+    }
+\end{fcllisting}
+
+Individual entries within a table
+may be identified
+using a \term{member} notation.
+For example,
+continuing the previous example document:
+\Needspace{0.17in}
+\begin{fcllisting}[texcl,escapechar=`]
+x : @local::t.c  # x's associated value is 7
+\end{fcllisting}
+The same notation can be used to override one of a table's values,
+or even to \term{inject} an additional pair into a table:
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+t.b : hi    # b's associated value is overridden with "hi"
+t.d : 3.14  # table now gains a fourth pair
+\end{fcllisting}
+
+
+\chapter{Includes}
+
+To deal with complexity,
+it may be desirable
+to assemble a larger \fhicl document
+from several smaller parts,
+with each fragment contained in its own file.
+Such assembly is made possible
+via \fhicl's \fclcode{#include} directive.
+
+The syntax for the directive is very strict
+in order to avoid possible confusion with a \fclcode{#}-introduced comment:
+each \fclcode{#include} is on a line by itself,
+with the \fclcode{#} in the first column.
+There must be exactly one space following \fclcode{#include},
+and then a double-quoted string identifying the file name\footnote{%
+  It has become conventional
+  to identify such files
+  with the suffix \fclcode{.fcl}.%
+}
+of the target \fhicl document fragment.
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+#include "filename1.fcl"
+#include "/path/to/filename2.fcl"
+\end{fcllisting}
+
+A document may be composed
+of as many such directives as desired.
+The binding will replace each directive
+with the document fragment contained in the corresponding named file.
+A fragment may itself contain \fclcode{#include} directives.\footnote{%
+  However, no fragment may include itself,
+  even indirectly.%
+}
+Although such directives are most commonly found
+at the start of a document,
+they may appear wherever a user finds convenient.
+
 
 \chapter{Prologs}
-        FHiCL documents may contain \emph{prolog} sections,
-	which contain declarations used to create a standard configuration for a FHiCL document.
-        \par
-        The beginning of a \emph{prolog} section is denoted by:
-        \emph{BEGINPROLOGUE}
-        and the end is denoted by:
-        \emph{ENDPROLOGUE}.
-        \par
-        Example 6.1.0:
-        \begin{verbatim}
-                BEGINPROLOGUE
-                   x : 5
-                   y : 6
-                ENDPROLOGUE
-        \end{verbatim}
-        All elements declared between the beginning and the end
-        do not exist within the parameter set unless specifically
-        \emph{referenced} within the document.
-        \par
-        Elements within a prologue section may be referenced,
-        but may not be modified in any way otherwise.
-        For instance, take the prologue section from Example 5.1.0.
-        \par
-        We can reference both \emph{x} and \emph{y} in the prologue section by using the reference notation:
-        \par
-        Example 6.1.1:
-        \begin{verbatim}
-                z : @local::x
-                u : @local::y
-        \end{verbatim}
-        \par
-        However we cannot modify x or y in any way.
-        Access to values within a prolog works exactly like it does when the referenced value is in the document.
-        You use the reference notation \emph{@local::} folowed by the target value you wish to reference.
-        \par
-        It is important to note that you \emph{MAY NOT} override values within a prolog from outside of a prolog.
-        The only way to override prolog values is to use a reference within either the same prolog, or another prolog.
-        Statements that appear to be attempting to override prolog values are treated as new associations, therefore creating
-        new associations in the parameter set.
 
-\chapter{Examples of FHiCL Documents and Their Resulting Parameter Sets}
-	\textbf{Example 1:}	
-	\begin{verbatim}
-		#Document
-		x:5
-		y:4
-		z:3
-		tab1:{ a:1 b:2 c:3 }
-	
-		#Parameter Set
-		{ x:5 y:4 z:3 tab1:{ a:1 b:2 c:3 } }
-	\end{verbatim}
+The purpose of a \fhicl \term{prolog}
+(also known as a \term{prolog section})
+is to provide name-value pairs
+that can be referenced
+later in the document.
+Indeed,
+pairs within a prolog
+will not appear
+in a parameter set
+unless they are thusly referenced
+outside the prolog.
 
-	\textbf{Example 2:}
-	\begin{verbatim}
-		#Document
-		BEGIN_PROLOG
-		x:1
-		y:2
-		END_PROLOG
-		x: @local::x
-		y: 3
-		z: @local::y
-	
-		#Parameter Set
-		{ x:1 y:3 z:2 }
-	\end{verbatim}
+A common use for a prolog
+is to provide alternative values
+from which to choose.
+The following document uses a prolog in this fashion
+such that only the 3-element sequence
+will appear in the parameter set:
+\Needspace{0.84in}
+\begin{fcllisting}[texcl,escapechar=`]
+BEGIN_PROLOG
+  opt1: [0, 1, 2]
+  opt2: [10, 11, 12, 13]
+END_PROLOG
+param: @local::opt1
+\end{fcllisting}
+The parameter set produced from the above document
+is indistinguishable from that
+produced from:
+\Needspace{0.17in}
+\begin{fcllisting}[texcl,escapechar=`]
+param: [0, 1, 2]
+\end{fcllisting}
 
-	\textbf{Example 3:}
-	\begin{verbatim}
-		#Document
-		BEGIN_PROLOG
-		x:1
-		tab:{ a:1 b:[1,2,3] c:{ d:4 e:5 f:[6,7,8] } }
-		END_PROLOG
-		tab1: @local::tab.c
-		tab2: @local::tab
+A document may contain
+as many or as few prolog sections as desired,
+so long as each starts with \fclcode{BEGIN_PROLOG}
+and ends with \fclcode{END_PROLOG}.
+Only comments may precede
+a prolog section;
+no prolog sections are permitted
+after a non-prolog name-value pair has appeared
+in the document.
 
-		#Parameter Set
-		{ tab1: { d:4 e:5 f:[6,7,8] } tab2: { a:1 b:[1,2,3] c:{ d:4 e:5 f:[6,7,8] } } }
-	\end{verbatim}
+It is not possible to override
+a prolog's name-value pair
+from outside a prolog.
+Pairs outside a prolog
+that appear to override a prolog pair
+are treated instead as new associations.
 
-	\textbf{Example 4:}
-	\begin{verbatim}
-		#Document
-                BEGIN_PROLOG
-                x:1
-                tab:{ a:1 b:[1,2,3] c:{ d:4 e:5 f:[6,7,8] } }
-                END_PROLOG
-                tab.c : 5
-                tab1: @local::tab.c
 
-		#Parameter Set
-		{ tab{ c:5 } tab1:{ d:4 e:5 f:[6,7,8] } }
+%\chapter{Examples}
 
-	\end{verbatim}
+%        \textbf{Example 1:}
+%        \begin{verbatim}
+%                #Document
+%                x:5
+%                y:4
+%                z:3
+%                tab1:{ a:1 b:2 c:3 }
+
+%                #Parameter Set
+%                { x:5 y:4 z:3 tab1:{ a:1 b:2 c:3 } }
+%        \end{verbatim}
+
+%        \textbf{Example 2:}
+%        \begin{verbatim}
+%                #Document
+%                BEGIN\_PROLOG
+%                x:1
+%                y:2
+%                END\_PROLOG
+%                x: @local::x
+%                y: 3
+%                z: @local::y
+
+%                #Parameter Set
+%                { x:1 y:3 z:2 }
+%        \end{verbatim}
+
+%        \textbf{Example 3:}
+%        \begin{verbatim}
+%                #Document
+%                BEGIN\_PROLOG
+%                x:1
+%                tab:{ a:1 b:[1,2,3] c:{ d:4 e:5 f:[6,7,8] } }
+%                END\_PROLOG
+%                tab1: @local::tab.c
+%                tab2: @local::tab
+
+%                #Parameter Set
+%                { tab1: { d:4 e:5 f:[6,7,8] } tab2: { a:1 b:[1,2,3] c:{ d:4 e:5 f:[6,7,8] } } }
+%        \end{verbatim}
+
+%        \textbf{Example 4:}
+%        \begin{verbatim}
+%                #Document
+%                BEGIN\_PROLOG
+%                x:1
+%                tab:{ a:1 b:[1,2,3] c:{ d:4 e:5 f:[6,7,8] } }
+%                END\_PROLOG
+%                tab.c : 5
+%                tab1: @local::tab.c
+
+%                #Parameter Set
+%                { tab{ c:5 } tab1:{ d:4 e:5 f:[6,7,8] } }
+
+%        \end{verbatim}
+
+
 \chapter{Conclusion}
-	This concludes the FHiCL Quick Start document. 
-	The definitions and examples given above will allow users to create their own FHiCL documents with ease,
-	and should provide a quick reference for users who are familiar with the language but are in need of a primer.
+        This concludes the \fhicl Quick Start document.
+        The definitions and examples given above will allow users to create their own \fhicl documents with ease,
+        and should provide a quick reference for users who are familiar with the language but are in need of a primer.
 \end{document}

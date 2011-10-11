@@ -34,10 +34,10 @@
   , booktabs%     "publication quality tables"
   , color%        color capability
   , cpplistings%  display code
+  , fcllistings%  display code
   , graphicx%     incorporate images
   , ifthen%       conditional source
   , xspace%       space character unless punctuation follows
-  , rcs%          RCS tags made available in LaTeX
   , varioref%     More flexible cross-references
   , microtype%
   }
@@ -63,7 +63,7 @@
  {%
   \definecolor{draftcolor}{rgb}{1.0,1.0,0.5}%  Yellow
   \usepackage[draft]{pdfdraftcopy} %"DRAFT" watermark
-  \draftstring{DRAFT \RCSRevision}
+  \draftstring{DRAFT}
   \draftcolor{draftcolor}
   \draftfontfamily{ptm}%{hlh}
   \draftfontsize{100}
@@ -116,6 +116,10 @@
 \setlength{\cftbeforechapterskip}{0in}
 \setlength{\cftbeforesectionskip}{0in}
 
+\setsecheadstyle{\large\bfseries\raggedright}
+\setbeforesecskip{-2ex plus -1ex minus -.2ex}
+\setaftersecskip{.5ex plus .1ex}
+
 \setlength  {\parskip     }{.5\baselineskip}
 \addtolength{\footnotesep }{.5\baselineskip}
 \checkandfixthelayout
@@ -130,12 +134,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Document's page style
 %
-% If [draftmode] was specified, we put RCS revision information on
+% If [draftmode] was specified, we put revision information on
 % the titlepage and on the odd-numbered page headers.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand{\docversion}{Revision~\RCSRevision}
+\newcommand{\docversion}{Revision~?}
 
 \setlength{\headwidth}{\textwidth}
 \makepagestyle   {memarticlepage}
@@ -146,7 +150,7 @@
 \ifthenelse{\boolean{draftmode}}
 {%
 \makeoddhead     {memarticlepage}%
-  {\normalfont\bfseries\shorttitle\ (Rev.~\RCSRevision)}%
+  {\normalfont\bfseries\shorttitle\ (Rev.~?)}%
   {}%
   {\normalfont\bfseries\thepage}
 \makeevenhead    {memarticlepage}%
@@ -305,12 +309,7 @@
   {\HUGE\doctitle}
   { \vskip\baselineskip }
   { \authors } \\
-\ifthenelse{\boolean{draftmode}}%
-  {\docversion \\}   % print document revision for drafts
-  { }                % do not print doc revision for final
-  \docnumber
 \end{center}
-
 \noindentcolorrule{Red}
 
 % ----------------------------------------------------------------------

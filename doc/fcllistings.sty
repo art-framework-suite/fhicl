@@ -1,0 +1,116 @@
+%======================================================================
+%
+%  fcllistings - provide for listings and inline snippets of C++ code
+%
+%======================================================================
+%
+% To produce an inline code snippet:
+%   \fclcode[option]{code}
+% Uses \fclfgcolor and style=fclstyle
+%
+% To produce a listing of code:
+%   \begin{fcllisting}[option]
+%   ...
+%   \end{fcllisting}
+% Uses \fclfgcolor, \fclbgcolor, style=fcllistingstyle, and style=fclstyle
+%
+%======================================================================
+
+
+%----------------------------------------------------------------------
+% Package identification:
+
+\def\filedesc{C++ listings}
+\def\filedate{2011/09/08}
+\def\fileauth{W. E. Brown<wb at fnal dot gov>}
+
+
+%----------------------------------------------------------------------
+% Package boilerplate:
+
+\NeedsTeXFormat{LaTeX2e}%
+  [1995/12/01]
+
+\ProvidesPackage{fcllistings}
+  [\filedate\space\filedesc\space(\fileauth)]
+
+% Exit if the style file is already loaded
+\ifx \fcllistingsloaded\relax \endinput\else\let\fcllistingsloaded\relax\fi
+
+
+%----------------------------------------------------------------------
+% Prerequisite packages and initial configuration:
+
+\RequirePackage{color}
+\RequirePackage{colornames}
+
+\RequirePackage{listings}
+%\lstloadlanguages{[ISO]C++}
+
+
+%----------------------------------------------------------------------
+% Color customization:
+
+\newcommand{\fclbgcolor}%	applies to listings only
+  {\color[gray]{.9}}
+
+\newcommand{\fclfgcolor}%	applies to listings and inline snippets
+  {\color{Navy}}
+
+
+%----------------------------------------------------------------------
+% Styles:
+
+\lstdefinestyle{fcllistingstyle}%	applies to listings only
+  { backgroundcolor	= \fclbgcolor
+  , breaklines		= false
+  , emptylines		= 1
+  , escapeinside	= {(*@}{@*)}
+  , frame		= none
+  , framexleftmargin	= .35em
+  , numberblanklines	= false
+  , numbersep		= 10pt
+  , numberstyle		= \tiny
+  , numbers		= left
+  , tabsize		= 2
+  , xleftmargin		= 2em
+  , basicstyle		= \ttfamily\fclfgcolor
+  , commentstyle	= \itshape\fclfgcolor
+  , identifierstyle	= \fclfgcolor
+  , stringstyle		= \fclfgcolor
+  }
+
+\lstdefinestyle{fclstyle}%	applies to listings and inline snippets
+  { basicstyle		= \ttfamily%\fclfgcolor
+  , commentstyle	= \itshape%\fclfgcolor
+  , identifierstyle	= %\fclfgcolor
+  , keywordstyle	= %\bfseries\fclfgcolor
+  , stringstyle		= %\fclfgcolor
+  }
+
+
+%----------------------------------------------------------------------
+% Language definition:
+
+\lstdefinelanguage{FHiCL}
+  %[ISO]{C++}
+  { style = fclstyle }
+
+
+%----------------------------------------------------------------------
+% C++ code display:
+
+\newcommand{\fclcode}[2][]%	inline snippets
+  {\lstinline[language=FHiCL,basicstyle=\ttfamily\bfseries,#1]{#2}}
+
+\lstnewenvironment{fcllisting}[1][]%	listings
+  { \lstset
+      { language	= FHiCL
+      , style		= fcllistingstyle
+      , #1
+  }   }
+  {}
+
+
+%======================================================================
+\endinput
