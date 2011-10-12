@@ -45,7 +45,7 @@ the Fermilab Hierarchical Configuration Language}
 
 The purpose of this document
 is to explain and demonstrate
-the major syntax and semantics
+the syntax and semantics
 of the Fermilab Hierarchical Configuration Language, \fhicl%
 \footnote{%
   The customary pronounciation is /fIkl/.%
@@ -61,7 +61,7 @@ sets of software parameters
 used to \term{configure}
 (prepare for a particular purpose)
 a program's execution.
-We will use the \term{parameter set}
+We will use the term \term{parameter set}
 to denote any specific collection
 of named values
 accessible to a user's program
@@ -124,8 +124,8 @@ may be used to create or to update a \fhicl file.%
   or
   via any other mechanism that can denote simple text.
   A binding is free
-  to support as many document sources
-  as it wishes.%
+  to support an arbitrary number
+  of document sources.%
 }
 
 \section{Name-value pairs}
@@ -223,8 +223,6 @@ introductory overviews for each section
 of a document,
 or even brief descriptions
 of individual name-value pairs.
-\fhicl comments can serve all of these purposes,
-and more.
 
 \fhicl provides two ways to \term{introduce} (start) a comment:
 \begin{itemize}
@@ -386,31 +384,31 @@ among the name-value pairs processed so far,
 and the corresponding value
 \term{substituted} (used in place of the reference).
 As a result,
-the two pairs can no longer get out of sync,
-as any change to the value of the first
-will automatically be propagated to the second.
+any change to the value of the first
+will automatically be propagated to the second,
+and the two pairs will remain in sync.
 
 
 \chapter{Values}
 
-\section{Classifications}
-
-At a high level,
-each \fhicl value can be classified
-as either \term{atomic} or \term{structured}.
-An \term{atom} (atomic value)
-is either
-  a \term{nil},
-  a \term{boolean},
-  a \term{number},
-or
-  a \term{string},
-while a structured value is either
-  a \term{complex} number,
-  a \term{sequence},
-or
-  a \term{table}.
-Each of these is further described in the following sections.
+%\section{Classifications}
+%
+%At a high level,
+%each \fhicl value can be classified
+%as either \term{atomic} or \term{structured}.
+%An \term{atom} (atomic value)
+%is either
+%  a \term{nil},
+%  a \term{boolean},
+%  a \term{number},
+%or
+%  a \term{string},
+%while a structured value is either
+%  a \term{complex} number,
+%  a \term{sequence},
+%or
+%  a \term{table}.
+%Each of these is further described in the following sections.
 
 \section{Nil value}
 
@@ -434,8 +432,8 @@ debug : true
 \end{fcllisting}
 
 \section{Numeric values}
-
-\subsection{Form}
+%
+%\subsection{Form}
 
 As in most programming languages,
 a \fhicl number
@@ -446,12 +444,14 @@ can have up to four parts:
   \item The \term{whole} part consists of
         a non-empty sequence of digits,
         such as \fclcode{0} or \fclcode{123};
-        any superfluous leading zeroes
+        any extraneous leading zeroes
         will be ignored by the binding.
   \item The \term{fraction} part consists of
         a single \fclcode{.} character
         followed by
-        a possibly empty sequence of digits.
+        a possibly empty sequence of digits;
+        any extraneous trailing zeroes
+        will be ignored by the binding.
   \item The \term{exponent} part consists of
         a single \fclcode{e} or \fclcode{E} character,
         optionally followed by a sign,
@@ -460,42 +460,62 @@ can have up to four parts:
         Examples include \fclcode{E5} and \fclcode{e-23}.
 \end{itemize}
 All parts are optional,
-except that there must be
-either a whole part or a fraction part.
+but there must be
+at least one digit
+in either the whole or the fraction part.
 
 In addition to the above,
 \fhicl treats the literal \fclcode{infinity}
 as a number.
 A sign
 may optionally precede this literal.
-
-\subsection{Interpretation}
-
-Although the nomenclature varies,
-programming languages typically distinguish
-among real values, unsigned integer values, and signed integer values.
-To the extent possible
-in the underlying programming language,
-each \fhicl binding
-must, without error, interpret each \fhicl number:
-\begin{itemize}
-  \item as any kind of real value upon request;
-  \item as an unsigned integer value upon request
-        if the number can be equivalently rewritten
-        using no more than seven digits;
-  and
-  \item as a signed integer value upon request
-        if the number can be equivalently rewritten
-        using only an optional \fclcode{-} sign
-        followed by no more than seven digits.
-\end{itemize}
+%
+%\subsection{Interpretation}
+%
+%Although the nomenclature varies,
+%programming languages typically distinguish
+%among real values, unsigned integer values, and signed integer values.
+%To the extent possible
+%in the underlying programming language,
+%each \fhicl binding
+%must, without error, interpret each \fhicl number:
+%\begin{itemize}
+%  \item as any kind of real value upon request;
+%  \item as an unsigned integer value upon request
+%        if the number can be equivalently rewritten
+%        using no more than seven digits;
+%  and
+%  \item as a signed integer value upon request
+%        if the number can be equivalently rewritten
+%        using only an optional \fclcode{-} sign
+%        followed by no more than seven digits.
+%\end{itemize}
 \Needspace{0.67in}
 \begin{fcllisting}[texcl,escapechar=`]
-pi : 3.1415926   # strictly a real value
-x  : 1.23e2      # same as 123: a signed, unsigned, or real value
-y  : -.45600e+3  # same as -456: a signed or real value
-z  : -infinity   # the most negative real value
+pi : 3.1415926
+x  : 1.23e2
+y  : -.45600e+3
+z  : -infinity
 \end{fcllisting}
+
+A binding must take into account
+the mathematical value being represented
+as well as any constraints
+imposed by the underlying programming language.
+
+\section{Complex values}
+
+A \fhicl complex value is written
+as two numbers
+separated by a comma
+and surrounded
+by parentheses:
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+c1: (1, 2)
+c2: (1.23, -3.1415926)
+\end{fcllisting}
+Whitespace before and after each number is optional.
 
 \section{String values}
 
@@ -503,20 +523,16 @@ A \fhicl string is written as a sequence of characters
 usually enclosed within matching quotation marks.
 The quotation marks may be omitted,
 but only if the string
-contains no whitespace, punctuation, or other special characters. 
-Strings that begin with a digit must be quoted
-unless they have the form of a number
-as described in the previous section.
-\Needspace{1.34in}
+contains no whitespace, punctuation, or other special characters:
+\Needspace{1.17in}
 \begin{fcllisting}[texcl,escapechar=`]
 s1: a
 s2: ab
 s3: string
 s4: "string"
 s5: 'string'
-s6: 12345
-s7: "123abc"
-s8: '123abc'
+s6: "123abc"
+s7: '123abc'
 \end{fcllisting}
 
 If the string is double-quoted,
@@ -533,20 +549,6 @@ and
 If the string is single-quoted,
 all characters are taken verbatim;
 escaped characters have no special meaning.
-
-\section{Complex values}
-
-A \fhicl complex value is written
-as two numbers
-separated by a comma
-and surrounded
-by parentheses:
-\Needspace{0.34in}
-\begin{fcllisting}[texcl,escapechar=`]
-c1: (1, 2)
-c2: (1.23, -3.1415926)
-\end{fcllisting}
-Whitespace before and after each number is optional.
 
 \section{Sequence values}
 
@@ -572,18 +574,18 @@ q3: [
     ]
 \end{fcllisting}
 
-Note that \fhicl sequences 
+Note that \fhicl sequences
 may be \term{heterogeneous};
 that is,
 the \term{elements} (values in a sequence)
 may be classified differently from each other.
 For example,
-some may be atomic while others are structured:
+some may be numbers while others are not:
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
-q4: [ 1, (2, 3.14), "a b", nil ]  # 4 elements
-q5: [ ]                           # 0 elements (empty)
-q6: [ @local::q4, @local::q5 ]    # 2 elements
+q4: [ 1, (2, 3.14), "a b", nil, true ]  # 5 elements
+q5: [ ]                                 # 0 elements (empty)
+q6: [ @local::q4, @local::q5 ]          # 2 elements
 \end{fcllisting}
 However, any given binding
 can support such heterogeneity
@@ -596,7 +598,7 @@ that the underlying programming language supports it.\footnote{%
 
 Individual elements may be identified
 (in a reference, for example)
-via a \term{subscript} (also known as an \term{index}) notation:
+via a zero-based \term{subscript} (also known as an \term{index}) notation:
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
 const: [ 2.7182818, 3.1415926 ]
@@ -604,12 +606,19 @@ e    : @local::const[0]
 pi   : @local::const[1]
 \end{fcllisting}
 The same notation can be used to override an element,
-or even to extend a sequence with an additional element:
+or even to extend a sequence with an additional element\footnote{%
+  \fhicl sequences are \term{dense}:
+  if a sequence contains $n$ elements,
+  their respective subscripts are always $0, 1, \ldots, n-1$.
+  Extending a sequence will implicitly insert
+  nil values, if needed, to preserve this property.
+}:
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
-fib: [ 0, 1, 1, oops, 3, 5 ]
-fib[3] : 2
-fib[6] : 8
+fib: [ 0, 1, 1, oops, 3, 5 ]  # 6 elements; heterogeneous
+fib[3] : 2                    # now a homogeneous sequence
+fib[6] : 8                    # now 7 elements
+fib[8] : 21                   # now 9 elements (2nd-last is nil)
 \end{fcllisting}
 
 \section{Table values}
@@ -681,7 +690,16 @@ of the target \fhicl document fragment.
 A document may be composed
 of as many such directives as desired.
 The binding will replace each directive
-with the document fragment contained in the corresponding named file.
+with the document fragment
+contained in the corresponding named file.\footnote{%
+  If it is set,
+  the environment variable \fclcode{FHICL_INCLUDE_PATH}
+  is consulted by the binding
+  to locate a file so named.
+  The value of this variable
+  is the usual colon-separated paths
+  typified by the bash standard \fclcode{PATH} variable.%
+}
 A fragment may itself contain \fclcode{#include} directives.\footnote{%
   However, no fragment may include itself,
   even indirectly.%
@@ -731,6 +749,9 @@ A document may contain
 as many or as few prolog sections as desired,
 so long as each starts with \fclcode{BEGIN_PROLOG}
 and ends with \fclcode{END_PROLOG}.
+No prolog may encompass another prolog;
+if there is more than one,
+they must appear strictly sequentially.
 Only comments may precede
 a prolog section;
 no prolog sections are permitted
@@ -804,8 +825,9 @@ are treated instead as new associations.
 %        \end{verbatim}
 
 
-\chapter{Conclusion}
-        This concludes the \fhicl Quick Start document.
-        The definitions and examples given above will allow users to create their own \fhicl documents with ease,
-        and should provide a quick reference for users who are familiar with the language but are in need of a primer.
+%\chapter{Conclusion}
+%This concludes the \fhicl Quick Start document.
+%The definitions and examples given above will allow users to create their own \fhicl documents with ease,
+%and should provide a quick reference for users who are familiar with the language but are in need of a primer.
+
 \end{document}
