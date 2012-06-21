@@ -1,3 +1,5 @@
+all: quick spec
+
 quick: quick_start.pdf
 
 spec: grammar.pdf
