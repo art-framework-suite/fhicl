@@ -1,45 +1,26 @@
-\documentclass{memarticle}
+\documentclass[draftmode,draftwater]{memarticle}
+\usepackage{fcllistings}
+
+%------------------------------------------------------------
+% Document title control. Change these as appropriate for your
+% document.
+%------------------------------------------------------------
+\newcommand{\doctitle}{Quick Start Guide for FHiCL: \\ the Fermliab Hierarchical Configuration Language}
+\newcommand{\brieftitle}{FHiCL Quick Start Guide}
+\newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/ADSS/SSI}}
+\newcommand{\docversion}{3}
 
 \usepackage{marvosym}%          to define \MVAt
 
 \newcommand{\fhicl}%
  {FHiCL\xspace}
 
-\newcommand{\shorttitle}%
- {\fhicl Quick Start Guide}
 
-\newcommand{\docnumber}{\shorttitle}
-
-\newcommand{\doctitle}{Quick Start Guide for \fhicl:\\
-the Fermilab Hierarchical Configuration Language}
-
-\date{\today}
-
-\newcommand{\authors}{The ART Development Team:\\
-  Walter E. Brown%
-, Chris Green%
-, Jim Kowalkowski%
-, Marc Paterno%
-, Ryan Putz%
-}
-
-\firmlists%\tightlists
-
+%------------------------------------------------------------
 \begin{document}
-\flushbottom
-\raggedbottomsectiontrue
-\thispagestyle{empty}
-\pagenumbering{arabic}
+\maxtocdepth{chapter}
 
-\begin{center}
-  {\LARGE\doctitle}
-  { \vskip\baselineskip }
-  { \authors }
-\end{center}
-\noindentcolorrule{Red}
-\tableofcontents*
-\noindentcolorrule{Red}
-
+\topmatter
 
 \chapter{Introduction}
 
@@ -383,11 +364,19 @@ the name is looked up
 among the name-value pairs processed so far,
 and the corresponding value
 \term{substituted} (used in place of the reference).
+The value used for the substitution
+is the value associated with the name
+at the time the reference is parsed.
 As a result,
-any change to the value of the first
+future revisions of the configuration file
+which contain modifications to the value of the first
 will automatically be propagated to the second,
 and the two pairs will remain in sync.
 
+In a single document,
+if the referenced name is given a new value,
+that new value will be used for subsequent references;
+previously processed references will not assume the new value.
 
 \chapter{Values}
 

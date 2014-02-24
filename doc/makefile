@@ -4,13 +4,13 @@ quick: quick_start.pdf
 
 spec: grammar.pdf
 
-%.pdf: %.tex *.cls *.sty
-	latexmk -pdf -silent $<
+%.pdf: %.tex
+	latexmk -pdf $<
 
 clean:
-	latexmk -c -silent grammar
-	latexmk -c -silent quick_start
+	latexmk -c grammar
+	latexmk -c quick_start
 
 clobber:
-	latexmk -C -silent grammar
-	latexmk -C -silent quick_start
+	latexmk -C grammar
+	latexmk -C quick_start
