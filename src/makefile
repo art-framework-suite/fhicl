@@ -1,3 +1,5 @@
+BISON=/usr/local/Cellar/bison/3.0.2/bin/bison
+FLEX=/usr/local/Cellar/flex/2.5.37/bin/flex
 all: bnf.tab.h bnf.tab.c lex.yy.c preprocess parser
 #grammar_new.pdf
 #grammar.pdf: grammar.tex memarticle.cls
@@ -21,13 +23,13 @@ bnf.y: bnf.y.inc bnf.y.template
 	(m4 bnf.y.template > bnf.y)
 
 bnf.tab.h bnf.tab.c: bnf.y
-	bison -g -v -d $<
+	$(BISON) -g -v -d $<
 
 lex.yy.c: bnf.l bnf.tab.h
-	flex $<
+	$(FLEX) $<
 
 parser: bnf.tab.c lex.yy.c
-	c++ -o parser bnf.tab.c lex.yy.c -lfl -ly
+	c++ -o parser bnf.tab.c lex.yy.c -L/usr/local/opt/flex/lib -lfl -ly
 
 test:   parser
 	preprocess ../tests/pass/test1.fcl
