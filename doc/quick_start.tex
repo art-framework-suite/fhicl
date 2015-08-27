@@ -5,9 +5,9 @@
 % Document title control. Change these as appropriate for your
 % document.
 %------------------------------------------------------------
-\newcommand{\doctitle}{Quick Start Guide for FHiCL: \\ the Fermliab Hierarchical Configuration Language}
+\newcommand{\doctitle}{Quick Start Guide for FHiCL: \\ the Fermilab Hierarchical Configuration Language}
 \newcommand{\brieftitle}{FHiCL Quick Start Guide}
-\newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/ADSS/SSI}}
+\newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Kyle Knoepfel, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/ADSS/SSI}}
 \newcommand{\docversion}{3}
 
 \usepackage{marvosym}%          to define \MVAt
@@ -24,123 +24,79 @@
 
 \chapter{Introduction}
 
-The purpose of this document
-is to explain and demonstrate
-the syntax and semantics
-of the Fermilab Hierarchical Configuration Language, \fhicl%
+The purpose of this document is to explain and demonstrate the syntax
+and semantics of the Fermilab Hierarchical Configuration Language,
+\fhicl%
 \footnote{%
   The customary pronounciation is /fIkl/.%
-},
-so that users may become comfortable
-with its features and intended use.
+}, so that users may become comfortable with its features and intended
+use.
 
-The end product of many years
-of experience with other configuration languages and notation,
-\fhicl has been carefully designed
-to allow its users to express, record, and retrieve
-sets of software parameters
-used to \term{configure}
-(prepare for a particular purpose)
-a program's execution.
-We will use the term \term{parameter set}
-to denote any specific collection
-of named values
-accessible to a user's program
-while it is running;
-a \fhicl \term{document}
-is a textual representation
-of such a parameter set.
-Two or more \fhicl documents
-are said to be \term{equivalent}
-if they lead to identical parameter sets.
+The end product of many years of experience with other configuration
+languages and notation, \fhicl has been carefully designed to allow
+its users to express, record, and retrieve sets of software parameters
+used to \term{configure} (prepare for a particular purpose) a
+program's execution.  We will use the term \term{parameter set} to
+denote any specific collection of named values accessible to a user's
+program while it is running; a \fhicl \term{document} is a textual
+representation of such a parameter set.  Two or more \fhicl documents
+are said to be \term{equivalent} if they lead to identical parameter
+sets.
 
-Depending on the programming language
-used to write the user program,
-one of several software subsystems is used
-to produce a parameter set
-from a given \fhicl document.
-Each such subsystem is known as a \term{binding}
-of the \fhicl specification
-to the programming language,
-and provides for the analysis and interpretation
-of \fhicl documents.
+Depending on the programming language used to write the user program,
+one of several software subsystems is used to produce a parameter set
+from a given \fhicl document.  Each such subsystem is known as a
+\term{binding} of the \fhicl specification to the programming
+language, and provides for the analysis and interpretation of \fhicl
+documents.
 
-While it is up to each binding
-to specify how users interface
-to the parameter sets produced by that binding,
-it is fundamental that
-users be able to query a parameter set
-by providing it a name
-(in the form of a string)
-in order to obtain the value corresponding to that name.
-Further,
-a parameter set
-must be capable of producing a document
-that is equivalent
-to the original document
-that gave rise to that parameter set.
+While it is up to each binding to specify how users interface to the
+parameter sets produced by that binding, it is fundamental that users
+be able to query a parameter set by providing it a name (in the form
+of a string) in order to obtain the value corresponding to that name.
+Further, a parameter set must be capable of producing a document that
+is equivalent to the original document that gave rise to that
+parameter set.
 
 
 \chapter{Documents}
 
 \section{Text}
 
-A \fhicl document is simply a sequence of characters
-(\ie text),
-structured as described below,
-and is commonly stored in a file
-whose name is conventionally suffixed \fclcode{.fcl}.
-For example,
-\fclcode{my_config.fcl} might be the name of such a file.
-Any conventional text editor
-(\eg emacs, vi, nedit, \ldots)
-may be used to create or to update a \fhicl file.%
+A \fhicl document is simply a sequence of characters (\ie text),
+structured as described below, and is commonly stored in a file whose
+name is conventionally suffixed \fclcode{.fcl}.  For example,
+\fclcode{my_config.fcl} might be the name of such a file.  Any
+conventional text editor (\eg emacs, vi, nedit, \ldots) may be used to
+create or to update a \fhicl file.%
 \footnote{%
-  Note that \fhicl documents
-  need not be represented via any file.
-  A binding may, for example,
-  obtain a \fhicl document
-  from a database,
-  via a string in a conventional programming language,
-  or
-  via any other mechanism that can denote simple text.
-  A binding is free
-  to support an arbitrary number
-  of document sources.%
+  Note that \fhicl documents need not be represented via any file.  A
+  binding may, for example, obtain a \fhicl document from a database,
+  via a string in a conventional programming language, or via any
+  other mechanism that can denote simple text.  A binding is free to
+  support an arbitrary number of document sources.%
 }
 
 \section{Name-value pairs}
 
-A document consists principally
-of \term{name-value pairs}.%
+A document consists principally of \term{name-value pairs}.%
 \footnote{%
-  A name-value pair is sometimes known
-  as an \term{association},
-  because parameter set lookup
-  is designed to take a name
-  and retrieve the associated value.
-  In this Guide
-  we will usually prefer the simpler \term{pair} nomenclature.%
-}
-There may be as many or as few such pairs
-as desired.%
+  A name-value pair is sometimes known as an \term{association},
+  because parameter set lookup is designed to take a name and retrieve
+  the associated value.  In this Guide we will usually prefer the
+  simpler \term{pair} nomenclature.%
+} There may be as many or as few such pairs as desired.%
 \footnote{%
-  A document consisting of no name-value pairs
-  is said to be \term{empty},
-  as is the parameter set
-  that a binding would generate
+  A document consisting of no name-value pairs is said to be
+  \term{empty}, as is the parameter set that a binding would generate
   from such a document.%
-}
-In each pair,
-a colon (\verb|:|) separates the \term{name}
-from the corresponding \term{value}.
+} In each pair, a colon (\verb|:|) separates the \term{name} from the
+corresponding \term{value}.
 
-At least one blank, tab, or newline character
-(collectively known as \term{whitespace})
-must separate one pair from the next.
-The following document,
-consisting of three name-value pairs,
-uses the minimum required whitespace:
+At least one blank, tab, or newline character (collectively known as
+\term{whitespace}) must separate one pair from the next.  The
+following document, consisting of three name-value pairs, uses the
+minimum required whitespace: 
 \Needspace{.17in}
 \begin{fcllisting}[texcl,escapechar=`]
 n:1 pi:3.14159 label:"horizontal axis"
@@ -148,27 +104,19 @@ n:1 pi:3.14159 label:"horizontal axis"
 
 \section{Optional whitespace}
 
-Within a \fhicl document,
-additional whitespace
-may be used
-at the discretion of the author.%
+Within a \fhicl document, additional whitespace may be used at the
+discretion of the author.%
 \footnote{%
-  Such optional whitespace
-  is commonly used
-  to produce indentation or alignment.%
-}
-A binding will ignore
-any such optional whitespace
-while producing a parameter set
-from the document.
+  Such optional whitespace is commonly used to produce indentation or
+  alignment.%
+} A binding will ignore any such optional whitespace while producing a
+parameter set from the document.
 
-The following document
-is equivalent to the single-line document shown above.
-Consisting of the same three name-value pairs,
-this variation employs extra whitespace
-to improve readability
-by (a) placing each pair on an individual line
-and (b) aligning the values:
+The following document is equivalent to the single-line document shown
+above.  Consisting of the same three name-value pairs, this variation
+employs extra whitespace to improve readability by (a) placing each
+pair on an individual line and (b) aligning the values:
+%
 \Needspace{0.5in}
 \begin{fcllisting}[texcl,escapechar=`]
 n     : 1
@@ -178,70 +126,49 @@ label : "horizontal axis"
 
 \section{Preview of other features}
 
-In addition to name-value pairs,
-a \fhicl document may contain
-\term{comments} (commonly also known as \term{remarks} or \term{annotations})
-as well as \term{prolog} sections.
-Further,
-a document's contents may be spread over several files
-via the \fhicl \term{include} mechanism.
-Each of these features will be introduced
-in this Guide.
-We will also provide more details
-about \fhicl{}'s names and values.
+In addition to name-value pairs, a \fhicl document may contain
+\term{comments} (commonly also known as \term{remarks} or
+\term{annotations}) as well as \term{prolog} sections.  Further, a
+document's contents may be spread over several files via the \fhicl
+\term{include} mechanism.  Each of these features will be introduced
+in this Guide.  We will also provide more details about \fhicl{}'s
+names and values.
 
 
 \chapter{Comments}
 
-Document providers often wish
-to annotate the document's contents.
-For example,
-it is common to provide a provenance
-giving the original author's name and date,
-followed by a revision history.
-Other annotations include
-introductory overviews for each section
-of a document,
-or even brief descriptions
-of individual name-value pairs.
+Document providers often wish to annotate the document's contents.
+For example, it is common to provide a provenance giving the original
+author's name and date, followed by a revision history.  Other
+annotations include introductory overviews for each section of a
+document, or even brief descriptions of individual name-value pairs.
 
 \fhicl provides two ways to \term{introduce} (start) a comment:
 \begin{itemize}
-  \item With a single \fclcode{#} character,%
-          \footnote{%
-          This notation is adopted
-          from such scripting languages
-          as bash, perl, and python.
-          The introductory \fclcode{#} character
-          is known variously as a
-          \term{pound sign},
-          \term{hash mark},
-          \term{sharp},
-          or \term{octothorpe}%
-          .}
-  or else
-  \item With two consecutive forward slashes (\fclcode{//}).\footnote{%
-          This notation is adopted
-          from such programming languages
-          as BCPL and \cpp{}%
-          .}
+\item With a single \fclcode{#} character,%
+  \footnote{%
+    This notation is adopted from such scripting languages as bash,
+    perl, and python.  The introductory \fclcode{#} character is known
+    variously as a \term{pound sign}, \term{hash mark}, \term{sharp},
+    or \term{octothorpe}%
+    .}  or else
+\item With two consecutive forward slashes (\fclcode{//}).\footnote{%
+    This notation is adopted from such programming languages as BCPL
+    and \cpp{}%
+    .}
 \end{itemize}
-Either or both of these comment introductions
-may be used within any \fhicl document.
+Either or both of these comment introductions may be used within any
+\fhicl document.
 
-The remainder of the line
-is the \term{body} of the comment,
-and provides whatever information
-the author may desire.
-The comment implicitly terminates
-at the end of the line,
-although an author may choose to continue his annotation
-onto any number of additional comments
-on subsequent lines.
+The remainder of the line is the \term{body} of the comment, and
+provides whatever information the author may desire.  The comment
+implicitly terminates at the end of the line, although an author may
+choose to continue his annotation onto any number of additional
+comments on subsequent lines.
 
-The following document illustrates
-the various forms
-that a \fhicl comment may take.
+The following document illustrates the various forms that a \fhicl
+comment may take.
+%
 \Needspace{0.67in}
 \begin{fcllisting}[texcl,escapechar=`]
 # This is a comment
@@ -250,133 +177,100 @@ foo  : "bar"   # this is a comment "in the margin" ...
 foo2 : "bar2" // ... and so is this
 \end{fcllisting}
 
-
 \chapter{Names}
 
 \section{Spelling}
 
-The spelling rules for \fhicl names
-match the spelling rules
-for identifiers in many programming languages:
+The spelling rules for \fhicl names match the spelling rules for
+identifiers in many programming languages:
 \begin{itemize}
-  \item Each name begins with a letter
-        or with a \fclcode{_} (underscore) character.
-  \item The name may be spelled
-        with as many additional consecutive
-        letters, underscores, or digits as desired.
-        No other characters
-        (\eg punctuation or whitespace)
-        may be embedded within a name.
-  \item Capitalization matters:
-        the name \fclcode{X} is not the same name
-        as the uncapitalized name \fclcode{x}.
-        Similarly,
-        \fhicl treats the names
-        \fclcode{Hello}, \fclcode{HELLO}, and \fclcode{hello}
-        as three distinct, unrelated names.
+\item Each name begins with a letter or with a \fclcode{_}
+  (underscore) character.
+\item The name may be spelled with as many additional consecutive
+  letters, underscores, or digits as desired.  No other characters
+  (\eg punctuation or whitespace) may be embedded within a name.
+\item Capitalization matters: the name \fclcode{X} is not the same
+  name as the uncapitalized name \fclcode{x}.  Similarly, \fhicl
+  treats the names \fclcode{Hello}, \fclcode{HELLO}, and
+  \fclcode{hello} as three distinct, unrelated names.
 \end{itemize}%
 
 \section{Name reuse}
 
-Consider the following document,
-noting especially the reuse of the name \fclcode{a}.
-When a binding processes this document,
-how many name-value pairs
-will the resulting parameter set contain?
+Consider the following document, noting especially the reuse of the
+name \fclcode{a}.  When a binding processes this document, how many
+name-value pairs will the resulting parameter set contain?
+%
 \Needspace{0.5in}
 \begin{fcllisting}[texcl,escapechar=`]
 a : 1
 b : 2
 a : 3
 \end{fcllisting}
-The answer is two.
-\fhicl provides that,
-if a document has two name-value pairs
-that have a name in common,
-the value in the later pair
-\term{overrides} (supercedes) the earlier one.\footnote{%
-  If more than two pairs
-  have a name in common,
-  the second pair overrides the first
-  as described above
-  until the third such pair is encountered.
-  Then the third pair overrides the second
-  until a fourth pair is encountered,
-  and so on.
-  In this way,
-  the last pair using that name
-  will ultimately override all the earlier ones
-  with the same name.%
-}
-Therefore, in the above example,
-when \fclcode{a} is looked up in the parameter set,
-the associated value will be found to be \fclcode{3}.
+%
+The answer is two.  \fhicl provides that, if a document has two
+name-value pairs that have a name in common, the value in the later
+pair \term{overrides} (supercedes) the earlier one.\footnote{%
+  If more than two pairs have a name in common, the second pair
+  overrides the first as described above until the third such pair is
+  encountered.  Then the third pair overrides the second until a
+  fourth pair is encountered, and so on.  In this way, the last pair
+  using that name will ultimately override all the earlier ones with
+  the same name.%
+} Therefore, in the above example, when \fclcode{a} is looked up in
+the parameter set, the associated value will be found to be
+\fclcode{3}.
 
 \section{References}
 
-Within some documents,
-a common scenario
-is to require that
-two (or more) name-value pairs
-with distinct names
-nonetheless provide the same value.
-The most obvious approach
-is simply to duplicate the value
-in each pair:
+Within some documents, a common scenario is to require that two (or
+more) name-value pairs with distinct names nonetheless provide the
+same value.  The most obvious approach is simply to duplicate the
+value in each pair:
+%
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 m : 1
 n : 1
 \end{fcllisting}
-However,
-as is true when writing programs,
-such duplication becomes problematic over time
-because it is not obvious by inspection
-that these two values
-are intended always to be identical.
-As a result,
-if a future update
-were to change the value associated with \fclcode{m},
-the required corresponding change to \fclcode{n}
-could be easily overlooked,
-especially if there were a great many intervening lines.
+%
+However, as is true when writing programs, such duplication becomes
+problematic over time because it is not obvious by inspection that
+these two values are intended always to be identical.  As a result, if
+a future update were to change the value associated with \fclcode{m},
+the required corresponding change to \fclcode{n} could be easily
+overlooked, especially if there were a great many intervening lines.
 
-To help avoid such an unhappy scenario,
-\fhicl allows a value to refer
-to a previously-provided value:
+To help avoid such an unhappy scenario, \fhicl allows a value to refer
+to a previously-provided value: 
+%
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 m : 1
 n : @local::m
 \end{fcllisting}
-A construction such as \fclcode{@local::m}
-is known as a \fhicl \term{reference}.
-Each reference consists of the prefix \fclcode{@local::}
-followed by a name (here, \fclcode{m})
-from an earlier name-value pair.%
+%
+A construction such as \fclcode{@local::m} is known as a \fhicl
+\term{reference}.  Each reference consists of the prefix
+\fclcode{@local::} followed by a name (here, \fclcode{m}) from an
+earlier name-value pair.%
 \footnote{%
-  The binding will report an error during processing
-  if the name hasn't yet been seen.%
+  The binding will report an error during processing if the name
+  hasn't yet been seen.%
 }
 
-When a binding processes such a reference,
-the name is looked up
-among the name-value pairs processed so far,
-and the corresponding value
-\term{substituted} (used in place of the reference).
-The value used for the substitution
-is the value associated with the name
-at the time the reference is parsed.
-As a result,
-future revisions of the configuration file
-which contain modifications to the value of the first
-will automatically be propagated to the second,
-and the two pairs will remain in sync.
+When a binding processes such a reference, the name is looked up among
+the name-value pairs processed so far, and the corresponding value
+\term{substituted} (used in place of the reference).  The value used
+for the substitution is the value associated with the name at the time
+the reference is parsed.  As a result, future revisions of the
+configuration file which contain modifications to the value of the
+first will automatically be propagated to the second, and the two
+pairs will remain in sync.
 
-In a single document,
-if the referenced name is given a new value,
-that new value will be used for subsequent references;
-previously processed references will not assume the new value.
+In a single document, if the referenced name is given a new value,
+that new value will be used for subsequent references; previously
+processed references will not assume the new value.
 
 \chapter{Values}
 
@@ -401,20 +295,22 @@ previously processed references will not assume the new value.
 
 \section{Nil value}
 
-The literal \fclcode{nil}
+The literal \fclcode{@nil}
 serves as a placeholder value,
 distinct from all other \fhicl values.
 It is suitable for constructing a name-value pair
 when no other \fhicl value will do.
+%
 \Needspace{0.17in}
 \begin{fcllisting}[texcl,escapechar=`]
-higgs : nil
+higgs : @nil
 \end{fcllisting}
 
 \section{Boolean values}
 
-The literals \fclcode{true} and \fclcode{false}
-correspond to the customary truth values.
+The literals \fclcode{true} and \fclcode{false} correspond to the
+customary truth values.  
+%
 \Needspace{0.17in}
 \begin{fcllisting}[texcl,escapechar=`]
 debug : true
@@ -424,40 +320,27 @@ debug : true
 %
 %\subsection{Form}
 
-As in most programming languages,
-a \fhicl number
-can have up to four parts:
+As in most programming languages, a \fhicl number can have up to four
+parts:
 \begin{itemize}
-  \item The \term{sign} part consists of
-        a single \fclcode{+} or \fclcode{-} character,
-  \item The \term{whole} part consists of
-        a non-empty sequence of digits,
-        such as \fclcode{0} or \fclcode{123};
-        any extraneous leading zeroes
-        will be ignored by the binding.
-  \item The \term{fraction} part consists of
-        a single \fclcode{.} character
-        followed by
-        a possibly empty sequence of digits;
-        any extraneous trailing zeroes
-        will be ignored by the binding.
-  \item The \term{exponent} part consists of
-        a single \fclcode{e} or \fclcode{E} character,
-        optionally followed by a sign,
-        followed by
-        a non-empty sequence of digits.
-        Examples include \fclcode{E5} and \fclcode{e-23}.
+\item The \term{sign} part consists of a single \fclcode{+} or
+  \fclcode{-} character,
+\item The \term{whole} part consists of a non-empty sequence of
+  digits, such as \fclcode{0} or \fclcode{123}; any extraneous leading
+  zeroes will be ignored by the binding.
+\item The \term{fraction} part consists of a single \fclcode{.}
+  character followed by a possibly empty sequence of digits; any
+  extraneous trailing zeroes will be ignored by the binding.
+\item The \term{exponent} part consists of a single \fclcode{e} or
+  \fclcode{E} character, optionally followed by a sign, followed by a
+  non-empty sequence of digits.  Examples include \fclcode{E5} and
+  \fclcode{e-23}.
 \end{itemize}
-All parts are optional,
-but there must be
-at least one digit
-in either the whole or the fraction part.
+All parts are optional, but there must be at least one digit in either
+the whole or the fraction part.
 
-In addition to the above,
-\fhicl treats the literal \fclcode{infinity}
-as a number.
-A sign
-may optionally precede this literal.
+In addition to the above, \fhicl treats the literal \fclcode{infinity}
+as a number.  A sign may optionally precede this literal.
 %
 %\subsection{Interpretation}
 %
@@ -487,32 +370,30 @@ y  : -.45600e+3
 z  : -infinity
 \end{fcllisting}
 
-A binding must take into account
-the mathematical value being represented
-as well as any constraints
-imposed by the underlying programming language.
+A binding must take into account the mathematical value being
+represented as well as any constraints imposed by the underlying
+programming language.
 
 \section{Complex values}
 
-A \fhicl complex value is written
-as two numbers
-separated by a comma
-and surrounded
-by parentheses:
+A \fhicl complex value is written as two numbers separated by a comma
+and surrounded by parentheses:
+% 
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 c1: (1, 2)
 c2: (1.23, -3.1415926)
 \end{fcllisting}
+%
 Whitespace before and after each number is optional.
 
 \section{String values}
 
-A \fhicl string is written as a sequence of characters
-usually enclosed within matching quotation marks.
-The quotation marks may be omitted,
-but only if the string
-contains no whitespace, punctuation, or other special characters:
+A \fhicl string is written as a sequence of characters usually
+enclosed within matching quotation marks.  The quotation marks may be
+omitted, but only if the string contains no whitespace, punctuation,
+or other special characters: 
+%
 \Needspace{1.17in}
 \begin{fcllisting}[texcl,escapechar=`]
 s1: a
@@ -524,31 +405,24 @@ s6: "123abc"
 s7: '123abc'
 \end{fcllisting}
 
-If the string is double-quoted,
-\term{escaped characters} will be interpreted as follows:
-  \fclcode{\\n} as a newline character,
-  \fclcode{\\t} as a tab,
-  \fclcode{\\'} as an apostrophe,
-  \fclcode{\\"} as a double-quote,
-and
-  \fclcode{\\\\} as a (single) backslash.\footnote{%
-                 The binding will produce a diagnostic
-                 for any other escaped characters.%
-                 }
-If the string is single-quoted,
-all characters are taken verbatim;
+If the string is double-quoted, \term{escaped characters} will be
+interpreted as follows: \fclcode{\\n} as a newline character,
+\fclcode{\\t} as a tab, \fclcode{\\'} as an apostrophe, \fclcode{\\"}
+as a double-quote, and \fclcode{\\\\} as a (single)
+backslash.\footnote{%
+  The binding will produce a diagnostic for any other escaped
+  characters.%
+} If the string is single-quoted, all characters are taken verbatim;
 escaped characters have no special meaning.
 
 \section{Sequence values}
 
-A \fhicl sequence starts with a left bracket
-and ends with a right bracket.
-These brackets surround
-a comma-separated list
-consisting of an arbitrary number
-of \fhicl values.
-Whitespace before and after each value is optional;
-thus, the following three sequences are considered identical.
+A \fhicl sequence starts with a left bracket and ends with a right
+bracket.  These brackets surround a comma-separated list consisting of
+an arbitrary number of \fhicl values.  Whitespace before and after
+each value is optional; thus, the following three sequences are
+considered identical.  
+%
 \Needspace{1.67in}
 \begin{fcllisting}[texcl,escapechar=`]
 q1: [ 1, 2, 3, 4 ]
@@ -563,66 +437,57 @@ q3: [
     ]
 \end{fcllisting}
 
-Note that \fhicl sequences
-may be \term{heterogeneous};
-that is,
-the \term{elements} (values in a sequence)
-may be classified differently from each other.
-For example,
-some may be numbers while others are not:
+Note that \fhicl sequences may be \term{heterogeneous}; that is, the
+\term{elements} (values in a sequence) may be classified differently
+from each other.  For example, some may be numbers while others are
+not: 
+%
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
-q4: [ 1, (2, 3.14), "a b", nil, true ]  # 5 elements
+q4: [ 1, (2, 3.14), "a b", @nil, true ]  # 5 elements
 q5: [ ]                                 # 0 elements (empty)
 q6: [ @local::q4, @local::q5 ]          # 2 elements
 \end{fcllisting}
-However, any given binding
-can support such heterogeneity
-only to the extent
-that the underlying programming language supports it.\footnote{%
-  This is rarely a restriction
-  because, in practice,
-  sequences tend overwhelmingly to be \term{homogeneous}.%
+However, any given binding can support such heterogeneity only to the
+extent that the underlying programming language supports
+it.\footnote{%
+  This is rarely a restriction because, in practice, sequences tend
+  overwhelmingly to be \term{homogeneous}.%
 }
 
-Individual elements may be identified
-(in a reference, for example)
-via a zero-based \term{subscript} (also known as an \term{index}) notation:
+Individual elements may be identified (in a reference, for example)
+via a zero-based \term{subscript} (also known as an \term{index})
+notation:
+%
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
 const: [ 2.7182818, 3.1415926 ]
 e    : @local::const[0]
 pi   : @local::const[1]
 \end{fcllisting}
-The same notation can be used to override an element,
-or even to extend a sequence with an additional element\footnote{%
-  \fhicl sequences are \term{dense}:
-  if a sequence contains $n$ elements,
-  their respective subscripts are always $0, 1, \ldots, n-1$.
-  Extending a sequence will implicitly insert
-  nil values, if needed, to preserve this property.
-}:
+The same notation can be used to override an element, or even to
+extend a sequence with an additional element\footnote{%
+  \fhicl sequences are \term{dense}: if a sequence contains $n$
+  elements, their respective subscripts are always $0, 1, \ldots,
+  n-1$.  Extending a sequence will implicitly insert \fclcode{@nil} values, if
+  needed, to preserve this property.  }: 
+%
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
 fib: [ 0, 1, 1, oops, 3, 5 ]  # 6 elements; heterogeneous
 fib[3] : 2                    # now a homogeneous sequence
 fib[6] : 8                    # now 7 elements
-fib[8] : 21                   # now 9 elements (2nd-last is nil)
+fib[8] : 21                   # now 9 elements (2nd-last is @nil)
 \end{fcllisting}
 
 \section{Table values}
 
-A \fhicl table starts with a left brace
-and ends with a right brace.
-Much like a document,
-the body of a \fhicl table
-consists of name-value pairs.
-Unlike a document,
-a \fhicl table can't have a prolog.
-The following document,
-for example,
-consists of a single name-value pair
-whose value is a table consisting of three pairs:
+A \fhicl table starts with a left brace and ends with a right brace.
+Much like a document, the body of a \fhicl table consists of
+name-value pairs.  Unlike a document, a \fhicl table can't have a
+prolog.  The following document, for example, consists of a single
+name-value pair whose value is a table consisting of three pairs:
+%
 \Needspace{0.67in}
 \begin{fcllisting}[texcl,escapechar=`]
 t : {  a : 5
@@ -631,18 +496,19 @@ t : {  a : 5
     }
 \end{fcllisting}
 
-Individual entries within a table
-may be identified
-using a \term{member} notation.
-For example,
-continuing the previous example document:
+Individual entries within a table may be identified using a
+\term{member} notation.  For example, continuing the previous example
+document: 
 \Needspace{0.17in}
+%
 \begin{fcllisting}[texcl,escapechar=`]
 x : @local::t.c  # x's associated value is 7
 \end{fcllisting}
+%
 The same notation can be used to override one of a table's values,
 or even to \term{inject} an additional pair into a table:
 \Needspace{0.34in}
+%
 \begin{fcllisting}[texcl,escapechar=`]
 t.b : hi    # b's associated value is overridden with "hi"
 t.d : 3.14  # table now gains a fourth pair
@@ -651,73 +517,53 @@ t.d : 3.14  # table now gains a fourth pair
 
 \chapter{Includes}
 
-To deal with complexity,
-it may be desirable
-to assemble a larger \fhicl document
-from several smaller parts,
-with each fragment contained in its own file.
-Such assembly is made possible
-via \fhicl's \fclcode{#include} directive.
+To deal with complexity, it may be desirable to assemble a larger
+\fhicl document from several smaller parts, with each fragment
+contained in its own file.  Such assembly is made possible via
+\fhicl's \fclcode{#include} directive.
 
-The syntax for the directive is very strict
-in order to avoid possible confusion with a \fclcode{#}-introduced comment:
-each \fclcode{#include} is on a line by itself,
-with the \fclcode{#} in the first column.
-There must be exactly one space following \fclcode{#include},
-and then a double-quoted string identifying the file name\footnote{%
-  It has become conventional
-  to identify such files
-  with the suffix \fclcode{.fcl}.%
-}
-of the target \fhicl document fragment.
+The syntax for the directive is very strict in order to avoid possible
+confusion with a \fclcode{#}-introduced comment: each
+\fclcode{#include} is on a line by itself, with the \fclcode{#} in the
+first column.  There must be exactly one space following
+\fclcode{#include}, and then a double-quoted string identifying the
+file name\footnote{%
+  It has become conventional to identify such files with the suffix
+  \fclcode{.fcl}.%
+} of the target \fhicl document fragment.  
+%
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 #include "filename1.fcl"
 #include "/path/to/filename2.fcl"
 \end{fcllisting}
 
-A document may be composed
-of as many such directives as desired.
-The binding will replace each directive
-with the document fragment
+A document may be composed of as many such directives as desired.  The
+binding will replace each directive with the document fragment
 contained in the corresponding named file.\footnote{%
-  If it is set,
-  the environment variable \fclcode{FHICL_INCLUDE_PATH}
-  is consulted by the binding
-  to locate a file so named.
-  The value of this variable
-  is the usual colon-separated paths
-  typified by the bash standard \fclcode{PATH} variable.%
-}
-A fragment may itself contain \fclcode{#include} directives.\footnote{%
-  However, no fragment may include itself,
-  even indirectly.%
-}
-Although such directives are most commonly found
-at the start of a document,
-they may appear wherever a user finds convenient.
+  If it is set, the environment variable \fclcode{FHICL_INCLUDE_PATH}
+  is consulted by the binding to locate a file so named.  The value of
+  this variable is the usual colon-separated paths typified by the
+  bash standard \fclcode{PATH} variable.%
+} A fragment may itself contain \fclcode{#include}
+directives.\footnote{%
+  However, no fragment may include itself, even indirectly.%
+} Although such directives are most commonly found at the start of a
+document, they may appear wherever a user finds convenient.
 
 
 \chapter{Prologs}
 
-The purpose of a \fhicl \term{prolog}
-(also known as a \term{prolog section})
-is to provide name-value pairs
-that can be referenced
-later in the document.
-Indeed,
-pairs within a prolog
-will not appear
-in a parameter set
-unless they are thusly referenced
-outside the prolog.
+The purpose of a \fhicl \term{prolog} (also known as a \term{prolog
+  section}) is to provide name-value pairs that can be referenced
+later in the document.  Indeed, pairs within a prolog will not appear
+in a parameter set unless they are thusly referenced outside the
+prolog.
 
-A common use for a prolog
-is to provide alternative values
-from which to choose.
-The following document uses a prolog in this fashion
-such that only the 3-element sequence
-will appear in the parameter set:
+A common use for a prolog is to provide alternative values from which
+to choose.  The following document uses a prolog in this fashion such
+that only the 3-element sequence will appear in the parameter set:
+%
 \Needspace{0.84in}
 \begin{fcllisting}[texcl,escapechar=`]
 BEGIN_PROLOG
@@ -726,33 +572,26 @@ BEGIN_PROLOG
 END_PROLOG
 param: @local::opt1
 \end{fcllisting}
-The parameter set produced from the above document
-is indistinguishable from that
-produced from:
+%
+The parameter set produced from the above document is
+indistinguishable from that produced from: 
+%
 \Needspace{0.17in}
 \begin{fcllisting}[texcl,escapechar=`]
 param: [0, 1, 2]
 \end{fcllisting}
 
-A document may contain
-as many or as few prolog sections as desired,
-so long as each starts with \fclcode{BEGIN_PROLOG}
-and ends with \fclcode{END_PROLOG}.
-No prolog may encompass another prolog;
-if there is more than one,
-they must appear strictly sequentially.
-Only comments may precede
-a prolog section;
-no prolog sections are permitted
-after a non-prolog name-value pair has appeared
-in the document.
+A document may contain as many or as few prolog sections as desired,
+so long as each starts with \fclcode{BEGIN_PROLOG} and ends with
+\fclcode{END_PROLOG}.  No prolog may encompass another prolog; if
+there is more than one, they must appear strictly sequentially.  Only
+comments may precede a prolog section; no prolog sections are
+permitted after a non-prolog name-value pair has appeared in the
+document.
 
-It is not possible to override
-a prolog's name-value pair
-from outside a prolog.
-Pairs outside a prolog
-that appear to override a prolog pair
-are treated instead as new associations.
+It is not possible to override a prolog's name-value pair from outside
+a prolog.  Pairs outside a prolog that appear to override a prolog
+pair are treated instead as new associations.
 
 
 %\chapter{Examples}
