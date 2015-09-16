@@ -5,16 +5,26 @@
 % Document title control. Change these as appropriate for your
 % document.
 %------------------------------------------------------------
-\newcommand{\doctitle}{Quick Start Guide for FHiCL: \\ the Fermilab Hierarchical Configuration Language}
-\newcommand{\brieftitle}{FHiCL Quick Start Guide}
-\newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Kyle Knoepfel, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/ADSS/SSI}}
-\newcommand{\docversion}{3}
+\newcommand{\doctitle}{Quick Start Guide for FHiCL 3: \\
+The \textbf{F}ermilab \textbf{Hi}erarchical \textbf{C}onfiguration \textbf{L}anguage}
+\newcommand{\brieftitle}{FHiCL 3 Quick Start Guide}
+\newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Kyle Knoepfel, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/SSA/SSI}}
+\newcommand{\docversion}{1}
 
 \usepackage{marvosym}%          to define \MVAt
 
-\newcommand{\fhicl}%
- {FHiCL\xspace}
+\newcommand{\fhicl}{FHiCL\xspace}
 
+% Symbols
+\newcommand{\aterase}{\fclcode{@erase}\xspace}
+\newcommand{\atlocal}{\fclcode{@local::}\xspace}
+\newcommand{\atsequence}{\fclcode{@sequence::}\xspace}
+\newcommand{\attable}{\fclcode{@table::}\xspace}
+\newcommand{\atdb}{\fclcode{@db::}\xspace}
+\newcommand{\atid}{\fclcode{@id::}\xspace}
+\newcommand{\nil}{\fclcode{@nil}\xspace}
+\newcommand{\protectError}{\fclcode{@protect_error:}\xspace}
+\newcommand{\protectIgnore}{\fclcode{@protect_ignore:}\xspace}
 
 %------------------------------------------------------------
 \begin{document}
@@ -89,9 +99,13 @@ A document consists principally of \term{name-value pairs}.%
 \footnote{%
   A document consisting of no name-value pairs is said to be
   \term{empty}, as is the parameter set that a binding would generate
-  from such a document.%
+  from such a document.  Both the empty document and the empty
+  corresponding parameter set are valid FHiCL constructs.%
 } In each pair, a colon (\verb|:|) separates the \term{name} from the
-corresponding \term{value}.
+corresponding \term{value}.%
+\footnote{%
+  In the context of the FHiCL language, the colon is referred to as
+  the \term{standard binding operator}.  }
 
 At least one blank, tab, or newline character (collectively known as
 \term{whitespace}) must separate one pair from the next.  The
@@ -119,21 +133,10 @@ pair on an individual line and (b) aligning the values:
 %
 \Needspace{0.5in}
 \begin{fcllisting}[texcl,escapechar=`]
-n     : 1
-pi    : 3.14159
-label : "horizontal axis"
+n    : 1
+pi   : 3.14159
+label: "horizontal axis"
 \end{fcllisting}
-
-\section{Preview of other features}
-
-In addition to name-value pairs, a \fhicl document may contain
-\term{comments} (commonly also known as \term{remarks} or
-\term{annotations}) as well as \term{prolog} sections.  Further, a
-document's contents may be spread over several files via the \fhicl
-\term{include} mechanism.  Each of these features will be introduced
-in this Guide.  We will also provide more details about \fhicl{}'s
-names and values.
-
 
 \chapter{Comments}
 
@@ -173,8 +176,8 @@ comment may take.
 \begin{fcllisting}[texcl,escapechar=`]
 # This is a comment
 // This is also a comment
-foo  : "bar"   # this is a comment "in the margin" ...
-foo2 : "bar2" // ... and so is this
+foo : "bar"   # this is a comment "in the margin" ...
+foo2: "bar2" // ... and so is this
 \end{fcllisting}
 
 \chapter{Names}
@@ -203,9 +206,9 @@ name-value pairs will the resulting parameter set contain?
 %
 \Needspace{0.5in}
 \begin{fcllisting}[texcl,escapechar=`]
-a : 1
-b : 2
-a : 3
+a: 1
+b: 2
+a: 3
 \end{fcllisting}
 %
 The answer is two.  \fhicl provides that, if a document has two
@@ -219,104 +222,41 @@ pair \term{overrides} (supercedes) the earlier one.\footnote{%
   the same name.%
 } Therefore, in the above example, when \fclcode{a} is looked up in
 the parameter set, the associated value will be found to be
-\fclcode{3}.
-
-\section{References}
-
-Within some documents, a common scenario is to require that two (or
-more) name-value pairs with distinct names nonetheless provide the
-same value.  The most obvious approach is simply to duplicate the
-value in each pair:
-%
-\Needspace{0.34in}
-\begin{fcllisting}[texcl,escapechar=`]
-m : 1
-n : 1
-\end{fcllisting}
-%
-However, as is true when writing programs, such duplication becomes
-problematic over time because it is not obvious by inspection that
-these two values are intended always to be identical.  As a result, if
-a future update were to change the value associated with \fclcode{m},
-the required corresponding change to \fclcode{n} could be easily
-overlooked, especially if there were a great many intervening lines.
-
-To help avoid such an unhappy scenario, \fhicl allows a value to refer
-to a previously-provided value: 
-%
-\Needspace{0.34in}
-\begin{fcllisting}[texcl,escapechar=`]
-m : 1
-n : @local::m
-\end{fcllisting}
-%
-A construction such as \fclcode{@local::m} is known as a \fhicl
-\term{reference}.  Each reference consists of the prefix
-\fclcode{@local::} followed by a name (here, \fclcode{m}) from an
-earlier name-value pair.%
-\footnote{%
-  The binding will report an error during processing if the name
-  hasn't yet been seen.%
-}
-
-When a binding processes such a reference, the name is looked up among
-the name-value pairs processed so far, and the corresponding value
-\term{substituted} (used in place of the reference).  The value used
-for the substitution is the value associated with the name at the time
-the reference is parsed.  As a result, future revisions of the
-configuration file which contain modifications to the value of the
-first will automatically be propagated to the second, and the two
-pairs will remain in sync.
-
-In a single document, if the referenced name is given a new value,
-that new value will be used for subsequent references; previously
-processed references will not assume the new value.
+\fclcode{3}.  Section~\ref{sec:references} discusses how the values
+associated with previously defined names can be used in other
+locations of the document.
 
 \chapter{Values}
 
-%\section{Classifications}
-%
-%At a high level,
-%each \fhicl value can be classified
-%as either \term{atomic} or \term{structured}.
-%An \term{atom} (atomic value)
-%is either
-%  a \term{nil},
-%  a \term{boolean},
-%  a \term{number},
-%or
-%  a \term{string},
-%while a structured value is either
-%  a \term{complex} number,
-%  a \term{sequence},
-%or
-%  a \term{table}.
-%Each of these is further described in the following sections.
+\section{Classifications}
 
-\section{Nil value}
+At a high level, each \fhicl value can be classified as either
+\term{atomic} or \term{structured}.  A structured value can further be
+categorized as a \term{sequence} or a \term{table}.  Each value,
+therefore, falls under one of the following three \fhicl \term{categories}:
 
-The literal \fclcode{@nil}
-serves as a placeholder value,
-distinct from all other \fhicl values.
-It is suitable for constructing a name-value pair
-when no other \fhicl value will do.
-%
-\Needspace{0.17in}
-\begin{fcllisting}[texcl,escapechar=`]
-higgs : @nil
-\end{fcllisting}
+\begin{description}
+\item [\textbf{atom}] A value that has no underlying structure.
+\item [\textbf{sequence}] A collection of values that are not associated with any names.
+\item [\textbf{table}] A collection of name-value pairs.\footnote{Also commonly referred to as a parameter set.}
+\end{description}
 
-\section{Boolean values}
+We first discuss values of atomic type, and then discuss the sequence
+and table.
+
+\section{Atomic values}
+
+\subsection{Boolean values}
 
 The literals \fclcode{true} and \fclcode{false} correspond to the
 customary truth values.  
 %
 \Needspace{0.17in}
 \begin{fcllisting}[texcl,escapechar=`]
-debug : true
+debug: true
 \end{fcllisting}
 
-\section{Numeric values}
+\subsection{Numeric values}
 %
 %\subsection{Form}
 
@@ -364,17 +304,17 @@ as a number.  A sign may optionally precede this literal.
 %\end{itemize}
 \Needspace{0.67in}
 \begin{fcllisting}[texcl,escapechar=`]
-pi : 3.1415926
-x  : 1.23e2
-y  : -.45600e+3
-z  : -infinity
+pi: 3.1415926
+x : 1.23e2
+y : -.45600e+3
+z : -infinity
 \end{fcllisting}
 
 A binding must take into account the mathematical value being
 represented as well as any constraints imposed by the underlying
 programming language.
 
-\section{Complex values}
+\subsection{Complex values}
 
 A \fhicl complex value is written as two numbers separated by a comma
 and surrounded by parentheses:
@@ -387,7 +327,7 @@ c2: (1.23, -3.1415926)
 %
 Whitespace before and after each number is optional.
 
-\section{String values}
+\subsection{String values}
 
 A \fhicl string is written as a sequence of characters usually
 enclosed within matching quotation marks.  The quotation marks may be
@@ -410,10 +350,21 @@ interpreted as follows: \fclcode{\\n} as a newline character,
 \fclcode{\\t} as a tab, \fclcode{\\'} as an apostrophe, \fclcode{\\"}
 as a double-quote, and \fclcode{\\\\} as a (single)
 backslash.\footnote{%
-  The binding will produce a diagnostic for any other escaped
-  characters.%
+  The binding will produce a diagnostic error message for any other
+  escaped characters.%
 } If the string is single-quoted, all characters are taken verbatim;
 escaped characters have no special meaning.
+
+\subsection{\nil value}
+
+The literal \nil serves as a placeholder value, distinct from all
+other \fhicl values.  It is suitable for constructing a name-value
+pair when no other \fhicl value will do.
+%
+\Needspace{0.17in}
+\begin{fcllisting}[texcl,escapechar=`]
+a: @nil
+\end{fcllisting}
 
 \section{Sequence values}
 
@@ -430,11 +381,11 @@ q2: [ 1, 2
     , 3, 4
     ]
 q3: [
-      1,
-      2,
-      3,
-      4
-    ]
+   1,
+   2,
+   3,
+   4
+]
 \end{fcllisting}
 
 Note that \fhicl sequences may be \term{heterogeneous}; that is, the
@@ -445,8 +396,8 @@ not:
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
 q4: [ 1, (2, 3.14), "a b", @nil, true ]  # 5 elements
-q5: [ ]                                 # 0 elements (empty)
-q6: [ @local::q4, @local::q5 ]          # 2 elements
+q5: [ ]                                  # 0 elements (empty)
+q6: [ [12, 34], 5 ]                      # 2 elements
 \end{fcllisting}
 However, any given binding can support such heterogeneity only to the
 extent that the underlying programming language supports
@@ -455,65 +406,426 @@ it.\footnote{%
   overwhelmingly to be \term{homogeneous}.%
 }
 
-Individual elements may be identified (in a reference, for example)
-via a zero-based \term{subscript} (also known as an \term{index})
-notation:
-%
-\Needspace{0.50in}
-\begin{fcllisting}[texcl,escapechar=`]
-const: [ 2.7182818, 3.1415926 ]
-e    : @local::const[0]
-pi   : @local::const[1]
-\end{fcllisting}
-The same notation can be used to override an element, or even to
-extend a sequence with an additional element\footnote{%
+% Individual elements may be identified (in a reference, for example)
+% via a zero-based \term{subscript} (also known as an \term{index})
+% notation:
+% %
+% \Needspace{0.50in}
+% \begin{fcllisting}[texcl,escapechar=`]
+% const: [ 2.7182818, 3.1415926 ]
+% e    : @local::const[0]
+% pi   : @local::const[1]
+% \end{fcllisting}
+A zero-based \term{subscript} (also known as an \term{index}) notation
+can be used to override an individual element, or even to extend a
+sequence with an additional element\footnote{%
   \fhicl sequences are \term{dense}: if a sequence contains $n$
   elements, their respective subscripts are always $0, 1, \ldots,
-  n-1$.  Extending a sequence will implicitly insert \fclcode{@nil} values, if
-  needed, to preserve this property.  }: 
+  n-1$.  Extending a sequence will implicitly insert \fclcode{@nil}
+  values, if needed, to preserve this property.  }:
 %
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
-fib: [ 0, 1, 1, oops, 3, 5 ]  # 6 elements; heterogeneous
-fib[3] : 2                    # now a homogeneous sequence
-fib[6] : 8                    # now 7 elements
-fib[8] : 21                   # now 9 elements (2nd-last is @nil)
+fib   : [ @nil, 1, 1, "", 3, 5 ]  # 6 elements; heterogeneous
+fib[0]: 0                         # @nil changed to '0'
+fib[3]: 2                         # now a homogeneous sequence
+fib[6]: 8                         # now 7 elements
+fib[8]: 21                        # now 9 elements (fib[7] is @nil)
 \end{fcllisting}
 
 \section{Table values}
 
 A \fhicl table starts with a left brace and ends with a right brace.
 Much like a document, the body of a \fhicl table consists of
-name-value pairs.  Unlike a document, a \fhicl table can't have a
+name-value pairs.  Unlike a document, a \fhicl table cannot have a
 prolog.  The following document, for example, consists of a single
 name-value pair whose value is a table consisting of three pairs:
 %
 \Needspace{0.67in}
 \begin{fcllisting}[texcl,escapechar=`]
-t : {  a : 5
-       b : 6
-       c : 7
-    }
+t: {
+   a: 5
+   b: 6
+   c: { e: 2.718 }
+}
 \end{fcllisting}
 
-Individual entries within a table may be identified using a
-\term{member} notation.  For example, continuing the previous example
-document: 
-\Needspace{0.17in}
-%
-\begin{fcllisting}[texcl,escapechar=`]
-x : @local::t.c  # x's associated value is 7
-\end{fcllisting}
-%
-The same notation can be used to override one of a table's values,
+The \term{member} notation can be used to override one of a table's values,
 or even to \term{inject} an additional pair into a table:
-\Needspace{0.34in}
 %
+\Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-t.b : hi    # b's associated value is overridden with "hi"
-t.d : 3.14  # table now gains a fourth pair
+t.b: hi    # b's associated value is overridden with "hi"
+t.d: 3.14  # table now gains a fourth pair
 \end{fcllisting}
 
+Note, however, that to override or inject any table values in this
+way, the full qualification of the relevant name must be specified.
+For example, in the following document
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+t2: {
+   c: { e: 2.718 }
+   c.e : "energy"     # error
+}
+\end{fcllisting}
+the name \fclcode{e} is only partially qualified when an attempt is
+made to override its value.  The correct override syntax is to start
+at the outer-most name and to use the member and subscript notation as
+necessary:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+t2: { c: { e: 2.718 } }
+t2.c.e : "energy"     # OK
+\end{fcllisting}
+
+\chapter{Names vs. keys}
+
+It is helpful to distinguish between a \term{name} and a \term{key}.
+In contrast to a name, a key can include member or subcript
+notation.  Consider the following document:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+table: {
+   sequence: [ { entry  : 1},
+               { another: 2} ]
+   atom: true
+}
+\end{fcllisting}
+%
+The list of names for this document is shown in Table~\ref{tab:names}.
+Table~\ref{tab:keys} shows the complete list of keys associated with
+the same document.  Note that each of the names listed in
+Table~\ref{tab:names} is also a key listed in
+Table~\ref{tab:keys}--i.e. names are a subset of keys.  This
+distinction is important when considering references (see
+section~\ref{sec:references}).
+%
+\begin{table}
+  \caption{List of names for the above FHiCL document.}
+  \begin{center}
+    \begin{tabular}{ll} \hline\hline
+      Name & Value type \\ \hline
+      \fclcode{table} & table \\
+      \fclcode{sequence} & sequence \\
+      \fclcode{entry} & atom \\
+      \fclcode{another} & atom \\
+      \fclcode{atom} & atom \\ \hline\hline
+    \end{tabular}
+  \end{center}
+  \label{tab:names}
+\end{table}
+
+\begin{table}
+  \caption{List of keys associated with above document.  All keys that begin with the name \fclcode{table} are fully-qualified keys.}
+  \begin{center}
+    \begin{tabular}{ll} \hline\hline
+      Key & Value type \\ \hline
+      \fclcode{table} & table \\
+      \fclcode{table.sequence} & sequence \\
+      \fclcode{table.sequence[0]} & table \\
+      \fclcode{table.sequence[0].entry} & atom \\
+      \fclcode{table.sequence[1]} & table \\
+      \fclcode{table.sequence[1].another} & atom \\
+      \fclcode{table.atom} & atom \\ \hline
+      \fclcode{sequence} & sequence \\
+      \fclcode{sequence[0]} & table \\
+      \fclcode{sequence[0].entry} & atom \\
+      \fclcode{sequence[1]} & table \\
+      \fclcode{sequence[1].another} & atom \\ \hline
+      \fclcode{entry} & atom \\
+      \fclcode{another} & atom \\
+      \fclcode{atom} & atom \\ \hline\hline
+    \end{tabular}
+  \end{center}
+  \label{tab:keys}
+\end{table}
+
+\chapter{References}
+\label{sec:references}
+
+Within some documents, a common scenario is to require that two (or
+more) name-value pairs with distinct names nonetheless provide the
+same value.  The most obvious approach is simply to duplicate the
+value in each pair:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+m: 1
+n: 1
+\end{fcllisting}
+%
+However, as is true when writing programs, such duplication becomes
+problematic over time because it is not obvious by inspection that
+these two values are intended always to be identical.  As a result, if
+a future update were to change the value associated with \fclcode{m},
+the required corresponding change to \fclcode{n} could be easily
+overlooked, especially if there were a great many intervening lines.
+
+\section{Substitutions}
+
+\subsection{\atlocal}
+
+To help avoid such an unhappy scenario, \fhicl allows a value to refer
+to a previously-provided value:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+m: 1
+n: @local::m
+\end{fcllisting}
+%
+A construction such as \fclcode{@local::m} is known as a \fhicl
+\term{reference}.  Each reference consists of the prefix \atlocal
+followed by a name (here, \fclcode{m}) from an earlier name-value
+pair.%
+\footnote{%
+  The binding will report an error during processing if the name
+  hasn't yet been seen.%
+}
+The following two documents are thus equivalent:
+
+\begin{minipage}{0.48\textwidth}
+\centering\textbf{Document 1}
+  \begin{fcllisting}[texcl,escapechar=`]
+a   : false
+seq : [ a, b, c ]
+tab : { d: e }
+
+a1  : @local::a
+a2  : @local::seq[1]
+a3  : @local::tab.d
+seq1: @local::seq
+seq2: [ @local::seq, d ]
+tab1: @local::tab
+  \end{fcllisting}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering\textbf{Document 2}
+  \begin{fcllisting}[texcl,escapechar=`]
+a   : false
+seq : [ a, b, c ]
+tab : { d: e }
+
+a1  : false
+a2  : b
+a3  : e
+seq1: [ a, b, c ]
+seq2: [ [a, b, c], d ]
+tab1: { d: e }
+  \end{fcllisting}
+\end{minipage}
+
+\noindent Notice that the subscript and member notations can be used
+for the \atlocal keyword in resolving references.  This is true, in
+general, of any of the FHiCL references (see
+section~\ref{sec:qualified}).
+
+When a binding processes such a reference, the name is looked up among
+the name-value pairs processed so far, and the corresponding value
+\term{substituted} (used in place of the reference).  The value used
+for the substitution is the value associated with the name at the time
+the reference is parsed.  As a result, future revisions of the
+configuration file which contain modifications to the value of the
+first will automatically be propagated to the second, and the two
+pairs will remain in sync.
+
+In a single document, if the referenced name is given a new value,
+that new value will be used for subsequent references; previously
+processed references will not assume the new value.
+
+\section{Splicing facilities}
+
+\subsection{\attable}
+
+The \attable keyword is used to allow the contents of a referenced
+table to be spliced into the table in which it is invoked.  For
+example, the following document:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+table1: {
+   a: 1
+   b: [2,3]
+}
+table2: {
+   @table::table1
+   c: 4
+}
+\end{fcllisting}
+%
+produces the same parameter set as:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+table1: {
+   a: 1
+   b: [2,3]
+}
+table2: {
+   a: 1      # contents from
+   b: [2,3]  # 'table1'
+   c: 4
+}
+\end{fcllisting}
+
+\subsection{\atsequence}
+
+Similar to the \attable keyword, \atsequence is invoked to splice
+sequence contents into already-existing sequences.  This document:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+seq1: [1,2,3]
+seq2: [ @sequence::seq1, 4,5,6]
+\end{fcllisting}
+%
+is equivalent to this one:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+seq1: [1,2,3]
+seq2: [1,2,3, 4,5,6]
+\end{fcllisting}
+
+\section{References and fully-qualified keys}
+\label{sec:qualified}
+
+The above \atlocal, \attable, and \atsequence FHiCL-reference keywords
+can be used only on fully qualified keys.  Consider the following
+document:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+tab1: {
+   tab2: {
+      test: 4
+      list: [6,5,4]
+   }
+}
+\end{fcllisting}
+%
+To access any of the above values using either substitution or
+splicing, the sequence of characters that follows \verb|::| must be a
+fully qualified key.  The following invocations represents valid FHiCL
+syntax (assuming the \fclcode{tab1} definition is visible):
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+t2: {
+   @table::tab1.tab2
+   list: [ @sequence::tab1.tab2.list, 3,2,1 ]
+}
+a1: @local::tab1.tab2.list[0]
+\end{fcllisting}
+%
+The above document is equivalent to:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+t2: {
+   test: 4
+   list: [6,5,4, 3,2,1]
+}
+a1: 6
+\end{fcllisting}
+%
+
+Note that a fully-qualified key cannot be used until the definition of
+the outer-most name is complete.  This means that this document:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+t1: {
+   m1 : { setting: 1 }
+   m2 : { setting: @local::t1.m1.setting }  # error
+}
+\end{fcllisting}
+%
+is not a valid FHiCL document because a reference to a \fclcode{t1}
+member is invoked before the closing brace of \fclcode{t1} has been
+reached.  A solution to this is to declare a name-value pair outside
+of \fclcode{t1} that can be used inside of it:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+global_setting: 1
+t1: {
+   m1: { setting: @local::global_setting }
+   m2: { setting: @local::global_setting }
+}
+\end{fcllisting}
+%
+The disadvantage in this case, however, is that an extra name
+(\fclcode{global_setting}) has been introduced at outer-most scope to
+support referencing within a local scope.  Since this name is meant to
+merely support a single point of maintenance, and it is not meaningful
+to what the document is trying to represent, its inclusion could be
+unwanted.  In addition, if many such names are introduced, the
+resulting parameter set can be unnecessarily large, and disentangling
+the meaningful name-value pairs from those that are not meaningful can
+be difficult.  This difficulty is resolved by the concept of prologs
+(see section~\ref{sec:prologs}).
+
+\chapter{Prologs}
+\label{sec:prologs}
+
+The purpose of a \fhicl \term{prolog} (also known as a \term{prolog
+  section}) is to provide name-value pairs that can be referenced
+later in the document without appearing in the final parameter set.
+
+A common use for a prolog is to provide alternative values from which
+to choose.  The following document uses a prolog in this fashion such
+that only the 3-element sequence will appear in the parameter set:
+%
+\Needspace{0.84in}
+\begin{fcllisting}[texcl,escapechar=`]
+BEGIN_PROLOG
+  opt1: [0, 1, 2]
+  opt2: [10, 11, 12, 13]
+END_PROLOG
+param: @local::opt1
+\end{fcllisting}
+%
+The parameter set produced from the above document is
+indistinguishable from that produced from:
+%
+\Needspace{0.17in}
+\begin{fcllisting}[texcl,escapechar=`]
+param: [0, 1, 2]
+\end{fcllisting}
+
+A document may contain as many or as few prolog sections as desired,
+so long as each starts with \fclcode{BEGIN_PROLOG} and ends with
+\fclcode{END_PROLOG}.  No prolog may encompass another prolog; if
+there is more than one, they must appear strictly sequentially.  Only
+comments may precede a prolog section; no prolog sections are
+permitted after a non-prolog name-value pair has appeared in the
+document.
+
+Name-value pairs defined in a prolog can be overridden from outside of
+the prolog.  Consider the following document:
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+BEGIN_PROLOG
+a: { b: { c: 37 } }
+END_PROLOG
+a: { x: 12 }
+\end{fcllisting}
+%
+The value associated with \fclcode{a} in the prolog is a table with an
+additional table nested inside of it.  By reassigning the value of
+\fclcode{a} outside of the prolog, the original prolog definition is
+erased, and the parameter set generated from the above document is
+equivalent to:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a: { x: 12 }
+\end{fcllisting}
 
 \chapter{Includes}
 
@@ -541,7 +853,7 @@ file name\footnote{%
 A document may be composed of as many such directives as desired.  The
 binding will replace each directive with the document fragment
 contained in the corresponding named file.\footnote{%
-  If it is set, the environment variable \fclcode{FHICL_INCLUDE_PATH}
+  If it is set, the environment variable \fclcode{FHICL_FILE_PATH}
   is consulted by the binding to locate a file so named.  The value of
   this variable is the usual colon-separated paths typified by the
   bash standard \fclcode{PATH} variable.%
@@ -551,48 +863,148 @@ directives.\footnote{%
 } Although such directives are most commonly found at the start of a
 document, they may appear wherever a user finds convenient.
 
+\noindent It is \textbf{\textit{strongly}} recommended that only
+prologs be placed in files that are \fclcode{#include}d.  This ensures
+that users can most easily glean the structure of a given FHiCL
+document under consideration.
 
-\chapter{Prologs}
+\chapter{Additional facilities}
 
-The purpose of a \fhicl \term{prolog} (also known as a \term{prolog
-  section}) is to provide name-value pairs that can be referenced
-later in the document.  Indeed, pairs within a prolog will not appear
-in a parameter set unless they are thusly referenced outside the
-prolog.
+\section{\aterase}
 
-A common use for a prolog is to provide alternative values from which
-to choose.  The following document uses a prolog in this fashion such
-that only the 3-element sequence will appear in the parameter set:
-%
-\Needspace{0.84in}
+Specifying the \aterase symbol as a value removes the
+corresponding key from the table.  For example, in this configuration:
+\Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-BEGIN_PROLOG
-  opt1: [0, 1, 2]
-  opt2: [10, 11, 12, 13]
-END_PROLOG
-param: @local::opt1
+a : {
+   b1 : "some string"
+}
+a.b1 : @erase
+\end{fcllisting}
+the parameter \fclcode{b1} is removed, and the table \fclcode{a} is
+empty.
+
+\section{Modified binding operators and protection}
+
+In addition to the standard binding operator (\verb|:|), there are two
+additional binding operators---\protectIgnore and \protectError. These
+bindings are single symbols in that no space is permitted between the
+initial \fclcode{@} and the word, or between the word and the trailing
+\fclcode{:}.  The three binding operators correspond to the following
+protection levels, ordered by increasing priority level:
+
+\begin{description}
+\item [\textbf{None}] A value bound to a name using \verb|:| can be
+  subsequently overridden.  This protection represents the lowest
+  priority level of the three.
+\item [\textbf{Ignore}] For a value bound using \protectIgnore,
+  subsequent assignments to the specified name are ignored.
+\item [\textbf{Error}] For a value bound using \protectError, a
+  subsequent assignment attempt to the specified name is an error, for
+  which an exception is thrown by the language binding, providing a
+  diagnostic message to aid in problem resolution.
+\end{description}
+
+\subsection{Protection inheritance}
+
+During assignment, a protection level is inherited from an enclosing
+name if the nested parameter has no specified protection.  It is an
+error, however, if the enclosed name has a specified protection level
+of \term{ignore} when the enclosing name has a protection level of
+\term{error}.  For example, the following FHiCL document:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a @protect_ignore: { b: 13 }
+\end{fcllisting}
+is equivalent to:
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a @protect_ignore: {
+   b @protect_ignore: 13
+}
+\end{fcllisting}
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a @protect_ignore: { b: 13 }
+\end{fcllisting}
+
+The following FHiCL document, however,
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a @protect_error: { b @protect_ignore: 13 }
+\end{fcllisting}
+is an error.
+
+\subsection{Protection when using \aterase}
+
+Use of \aterase on a name at a higher nesting level than that of a
+protected name ignores the protection of the item.  For example:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a1: { b: { x @protect_ignore: 7 } }
+a2 @protect_ignore: { b: { x: 7 } }
+a1: @erase
+a2: @erase
 \end{fcllisting}
 %
-The parameter set produced from the above document is
-indistinguishable from that produced from: 
+is equivalent to
 %
-\Needspace{0.17in}
+\Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-param: [0, 1, 2]
+a1: {}
+a2: { b : { x : 7 } }
+\end{fcllisting}
+%
+where the contents of \fclcode{a1} have been erased, and those of
+\fclcode{a2} have been retained.
+
+\subsection{Additional restrictions}
+
+It is an error to use a modified binding operator for an assignment to
+a name that already has a value.
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a: 2
+a @protect_ignore: 3 # error
+\end{fcllisting}
+%
+
+Similarly, a local or fully-qualified override shall honor protection,
+whereas a nested replacement shall not. For example:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a    : { b : { c @protect_error: 37 } }
+d    : @local::a
+
+a.b.c: 37             # error - protection honored
+a    : 12             # OK    - protection overridden
+d    : { b: { c: 43 } # OK    - protection overridden
 \end{fcllisting}
 
-A document may contain as many or as few prolog sections as desired,
-so long as each starts with \fclcode{BEGIN_PROLOG} and ends with
-\fclcode{END_PROLOG}.  No prolog may encompass another prolog; if
-there is more than one, they must appear strictly sequentially.  Only
-comments may precede a prolog section; no prolog sections are
-permitted after a non-prolog name-value pair has appeared in the
-document.
+In the case of a local override attempt, the protection is respected:
+%
+\Needspace{0.34in}
+\begin{fcllisting}[texcl,escapechar=`]
+a: {
+   b: {
+      c @protect_error: 37
+      d: 31
+      c: 43  #error - local override attempt
+   }
+}
+\end{fcllisting}
 
-It is not possible to override a prolog's name-value pair from outside
-a prolog.  Pairs outside a prolog that appear to override a prolog
-pair are treated instead as new associations.
+\section{Miscellany}
 
+\subsection{\atdb}
+%
+% The intent of \db is to allow users to
+
+\subsection{\atid}
 
 %\chapter{Examples}
 
