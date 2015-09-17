@@ -9,7 +9,7 @@
 The \textbf{F}ermilab \textbf{Hi}erarchical \textbf{C}onfiguration \textbf{L}anguage}
 \newcommand{\brieftitle}{FHiCL 3 Quick Start Guide}
 \newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Kyle Knoepfel, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/SSA/SSI}}
-\newcommand{\docversion}{1}
+\newcommand{\docversion}{2}
 
 \usepackage{marvosym}%          to define \MVAt
 
@@ -22,7 +22,7 @@ The \textbf{F}ermilab \textbf{Hi}erarchical \textbf{C}onfiguration \textbf{L}ang
 \newcommand{\attable}{\fclcode{@table::}\xspace}
 \newcommand{\atdb}{\fclcode{@db::}\xspace}
 \newcommand{\atid}{\fclcode{@id::}\xspace}
-\newcommand{\nil}{\fclcode{@nil}\xspace}
+\newcommand{\atnil}{\fclcode{@nil}\xspace}
 \newcommand{\protectError}{\fclcode{@protect_error:}\xspace}
 \newcommand{\protectIgnore}{\fclcode{@protect_ignore:}\xspace}
 
@@ -355,9 +355,9 @@ backslash.\footnote{%
 } If the string is single-quoted, all characters are taken verbatim;
 escaped characters have no special meaning.
 
-\subsection{\nil value}
+\subsection{\atnil value}
 
-The literal \nil serves as a placeholder value, distinct from all
+The literal \atnil serves as a placeholder value, distinct from all
 other \fhicl values.  It is suitable for constructing a name-value
 pair when no other \fhicl value will do.
 %
@@ -421,8 +421,8 @@ can be used to override an individual element, or even to extend a
 sequence with an additional element\footnote{%
   \fhicl sequences are \term{dense}: if a sequence contains $n$
   elements, their respective subscripts are always $0, 1, \ldots,
-  n-1$.  Extending a sequence will implicitly insert \fclcode{@nil}
-  values, if needed, to preserve this property.  }:
+  n-1$.  Extending a sequence will implicitly insert \atnil values, if
+  needed, to preserve this property.  }:
 %
 \Needspace{0.50in}
 \begin{fcllisting}[texcl,escapechar=`]
@@ -924,11 +924,6 @@ a @protect_ignore: {
    b @protect_ignore: 13
 }
 \end{fcllisting}
-\Needspace{0.34in}
-\begin{fcllisting}[texcl,escapechar=`]
-a @protect_ignore: { b: 13 }
-\end{fcllisting}
-
 The following FHiCL document, however,
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
@@ -1000,11 +995,9 @@ a: {
 
 \section{Miscellany}
 
-\subsection{\atdb}
-%
-% The intent of \db is to allow users to
+\subsection{\atdb (do we mention this?)}
 
-\subsection{\atid}
+\subsection{\atid (what about this?')}
 
 %\chapter{Examples}
 
