@@ -9,7 +9,7 @@
 The \textbf{F}ermilab \textbf{Hi}erarchical \textbf{C}onfiguration \textbf{L}anguage}
 \newcommand{\brieftitle}{FHiCL 3 Quick Start Guide}
 \newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Kyle Knoepfel, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/SSA/SSI}}
-\newcommand{\docversion}{2}
+\newcommand{\docversion}{3}
 
 \usepackage{marvosym}%          to define \MVAt
 
@@ -438,7 +438,7 @@ fib[8]: 21                        # now 9 elements (fib[7] is @nil)
 A \fhicl table starts with a left brace and ends with a right brace.
 Much like a document, the body of a \fhicl table consists of
 name-value pairs.  Unlike a document, a \fhicl table cannot have a
-prolog.  The following document, for example, consists of a single
+prolog (see section~\ref{sec:prologs}).  The following document, for example, consists of a single
 name-value pair whose value is a table consisting of three pairs:
 %
 \Needspace{0.67in}
@@ -814,6 +814,7 @@ BEGIN_PROLOG
 a: { b: { c: 37 } }
 END_PROLOG
 a: { x: 12 }
+b: @local::a
 \end{fcllisting}
 %
 The value associated with \fclcode{a} in the prolog is a table with an
@@ -825,6 +826,7 @@ equivalent to:
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 a: { x: 12 }
+b: { x: 12 }
 \end{fcllisting}
 
 \chapter{Includes}
@@ -853,35 +855,34 @@ file name\footnote{%
 A document may be composed of as many such directives as desired.  The
 binding will replace each directive with the document fragment
 contained in the corresponding named file.\footnote{%
-  If it is set, the environment variable \fclcode{FHICL_FILE_PATH}
-  is consulted by the binding to locate a file so named.  The value of
+  If it is set, the environment variable \fclcode{FHICL_FILE_PATH} is
+  consulted by the binding to locate a file so named.  The value of
   this variable is the usual colon-separated paths typified by the
   bash standard \fclcode{PATH} variable.%
 } A fragment may itself contain \fclcode{#include}
 directives.\footnote{%
   However, no fragment may include itself, even indirectly.%
 } Although such directives are most commonly found at the start of a
-document, they may appear wherever a user finds convenient.
-
-\noindent It is \textbf{\textit{strongly}} recommended that only
-prologs be placed in files that are \fclcode{#include}d.  This ensures
-that users can most easily glean the structure of a given FHiCL
-document under consideration.
+document, they may appear wherever a user finds convenient.  However,
+it is \textbf{\textit{strongly}} recommended that only prologs be
+placed in files that are \fclcode{#include}d.  This ensures that users
+can most easily glean the structure of a given FHiCL document under
+consideration.
 
 \chapter{Additional facilities}
 
 \section{\aterase}
 
-Specifying the \aterase symbol as a value removes the
-corresponding key from the table.  For example, in this configuration:
-\Needspace{0.34in}
+Specifying the \aterase symbol as a value removes the previously
+defined name-value pair from the parameter set.  For example, in this
+document: \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 a : {
    b1 : "some string"
 }
 a.b1 : @erase
 \end{fcllisting}
-the parameter \fclcode{b1} is removed, and the table \fclcode{a} is
+the name \fclcode{b1} is removed, and the table \fclcode{a} is
 empty.
 
 \section{Modified binding operators and protection}
@@ -901,14 +902,13 @@ protection levels, ordered by increasing priority level:
   subsequent assignments to the specified name are ignored.
 \item [\textbf{Error}] For a value bound using \protectError, a
   subsequent assignment attempt to the specified name is an error, for
-  which an exception is thrown by the language binding, providing a
-  diagnostic message to aid in problem resolution.
+  which a diagnostic message is provided by the binding language.
 \end{description}
 
 \subsection{Protection inheritance}
 
 During assignment, a protection level is inherited from an enclosing
-name if the nested parameter has no specified protection.  It is an
+name if the nested name has no specified protection.  It is an
 error, however, if the enclosed name has a specified protection level
 of \term{ignore} when the enclosing name has a protection level of
 \term{error}.  For example, the following FHiCL document:
@@ -924,7 +924,7 @@ a @protect_ignore: {
    b @protect_ignore: 13
 }
 \end{fcllisting}
-The following FHiCL document, however,
+This document, however,
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 a @protect_error: { b @protect_ignore: 13 }
@@ -949,7 +949,7 @@ is equivalent to
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 a1: {}
-a2: { b : { x : 7 } }
+a2 @protect_ignore: { b: { x: 7 } }
 \end{fcllisting}
 %
 where the contents of \fclcode{a1} have been erased, and those of
@@ -958,7 +958,7 @@ where the contents of \fclcode{a1} have been erased, and those of
 \subsection{Additional restrictions}
 
 It is an error to use a modified binding operator for an assignment to
-a name that already has a value.
+a name that already has a value:
 %
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
@@ -975,9 +975,9 @@ whereas a nested replacement shall not. For example:
 a    : { b : { c @protect_error: 37 } }
 d    : @local::a
 
-a.b.c: 37             # error - protection honored
-a    : 12             # OK    - protection overridden
-d    : { b: { c: 43 } # OK    - protection overridden
+a.b.c: 37               # error - protection honored
+a    : 12               # OK    - protection overridden
+d    : { b: { c: 43 } } # OK    - protection overridden
 \end{fcllisting}
 
 In the case of a local override attempt, the protection is respected:
@@ -992,12 +992,6 @@ a: {
    }
 }
 \end{fcllisting}
-
-\section{Miscellany}
-
-\subsection{\atdb (do we mention this?)}
-
-\subsection{\atid (what about this?')}
 
 %\chapter{Examples}
 
