@@ -1,4 +1,5 @@
-\documentclass[draftmode,draftwater]{memarticle}
+%\documentclass[draftmode,draftwater]{memarticle}
+\documentclass{memarticle}
 \usepackage{fcllistings}
 
 %------------------------------------------------------------
@@ -9,7 +10,7 @@
 The \textbf{F}ermilab \textbf{Hi}erarchical \textbf{C}onfiguration \textbf{L}anguage}
 \newcommand{\brieftitle}{FHiCL 3 Quick Start Guide}
 \newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Walter E.~Brown, Chris Green, Kyle Knoepfel, Jim Kowalkowski, Marc Paterno, Ryan Putz \\ Fermilab/SCD/SSA/SSI}}
-\newcommand{\docversion}{3}
+\newcommand{\docversion}{4}
 
 \usepackage{marvosym}%          to define \MVAt
 
@@ -249,7 +250,8 @@ and table.
 \subsection{Boolean values}
 
 The literals \fclcode{true} and \fclcode{false} correspond to the
-customary truth values.  
+customary truth values.\footnote{Any language binding will convert
+  these literals into the Boolean representations native to that binding.}
 %
 \Needspace{0.17in}
 \begin{fcllisting}[texcl,escapechar=`]
@@ -276,8 +278,8 @@ parts:
   non-empty sequence of digits.  Examples include \fclcode{E5} and
   \fclcode{e-23}.
 \end{itemize}
-All parts are optional, but there must be at least one digit in either
-the whole or the fraction part.
+All parts are optional with the restriction that at least one digit is
+specified in either the whole or the fraction part.
 
 In addition to the above, \fhicl treats the literal \fclcode{infinity}
 as a number.  A sign may optionally precede this literal.
@@ -302,11 +304,16 @@ as a number.  A sign may optionally precede this literal.
 %        using only an optional \fclcode{-} sign
 %        followed by no more than seven digits.
 %\end{itemize}
+
+Supported examples include:
+
 \Needspace{0.67in}
 \begin{fcllisting}[texcl,escapechar=`]
+i : 14
+t : .68
 pi: 3.1415926
 x : 1.23e2
-y : -.45600e+3
+y : -0.45600E+3
 z : -infinity
 \end{fcllisting}
 
@@ -489,10 +496,10 @@ notation.  Consider the following document:
 %
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-table: {
-   sequence: [ { entry  : 1},
-               { another: 2} ]
-   atom: true
+t: {
+   s: [ {entry  : 1},
+        {another: 2} ]
+   a: true
 }
 \end{fcllisting}
 %
@@ -509,36 +516,36 @@ section~\ref{sec:references}).
   \begin{center}
     \begin{tabular}{ll} \hline\hline
       Name & Value type \\ \hline
-      \fclcode{table} & table \\
-      \fclcode{sequence} & sequence \\
+      \fclcode{t} & table \\
+      \fclcode{s} & sequence \\
       \fclcode{entry} & atom \\
       \fclcode{another} & atom \\
-      \fclcode{atom} & atom \\ \hline\hline
+      \fclcode{a} & atom \\ \hline\hline
     \end{tabular}
   \end{center}
   \label{tab:names}
 \end{table}
 
 \begin{table}
-  \caption{List of keys associated with above document.  All keys that begin with the name \fclcode{table} are fully-qualified keys.}
+  \caption{List of keys associated with above document.  All keys that begin with the name \fclcode{t} are fully qualified keys.}
   \begin{center}
     \begin{tabular}{ll} \hline\hline
       Key & Value type \\ \hline
-      \fclcode{table} & table \\
-      \fclcode{table.sequence} & sequence \\
-      \fclcode{table.sequence[0]} & table \\
-      \fclcode{table.sequence[0].entry} & atom \\
-      \fclcode{table.sequence[1]} & table \\
-      \fclcode{table.sequence[1].another} & atom \\
-      \fclcode{table.atom} & atom \\ \hline
-      \fclcode{sequence} & sequence \\
-      \fclcode{sequence[0]} & table \\
-      \fclcode{sequence[0].entry} & atom \\
-      \fclcode{sequence[1]} & table \\
-      \fclcode{sequence[1].another} & atom \\ \hline
+      \fclcode{t} & table \\
+      \fclcode{t.s} & sequence \\
+      \fclcode{t.s[0]} & table \\
+      \fclcode{t.s[0].entry} & atom \\
+      \fclcode{t.s[1]} & table \\
+      \fclcode{t.s[1].another} & atom \\
+      \fclcode{t.a} & atom \\ \hline
+      \fclcode{s} & sequence \\
+      \fclcode{s[0]} & table \\
+      \fclcode{s[0].entry} & atom \\
+      \fclcode{s[1]} & table \\
+      \fclcode{s[1].another} & atom \\ \hline
       \fclcode{entry} & atom \\
       \fclcode{another} & atom \\
-      \fclcode{atom} & atom \\ \hline\hline
+      \fclcode{a} & atom \\ \hline\hline
     \end{tabular}
   \end{center}
   \label{tab:keys}
@@ -584,45 +591,44 @@ followed by a name (here, \fclcode{m}) from an earlier name-value
 pair.%
 \footnote{%
   The binding will report an error during processing if the name
-  hasn't yet been seen.%
+  has not yet been seen.%
 }
 The following two documents are thus equivalent:
 
 \begin{minipage}{0.48\textwidth}
 \centering\textbf{Document 1}
   \begin{fcllisting}[texcl,escapechar=`]
-a   : false
-seq : [ a, b, c ]
-tab : { d: e }
+a : false
+s : [ a, b, c ]
+t : { d: e }
 
-a1  : @local::a
-a2  : @local::seq[1]
-a3  : @local::tab.d
-seq1: @local::seq
-seq2: [ @local::seq, d ]
-tab1: @local::tab
+a1: @local::a
+a2: @local::s[1]
+a3: @local::t.d
+s1: @local::s
+s2: [ @local::s, d ]
+t1: @local::t
   \end{fcllisting}
 \end{minipage}\hfill
 \begin{minipage}{0.48\textwidth}
 \centering\textbf{Document 2}
   \begin{fcllisting}[texcl,escapechar=`]
-a   : false
-seq : [ a, b, c ]
-tab : { d: e }
+a : false
+s : [ a, b, c ]
+t : { d: e }
 
-a1  : false
-a2  : b
-a3  : e
-seq1: [ a, b, c ]
-seq2: [ [a, b, c], d ]
-tab1: { d: e }
+a1: false
+a2: b
+a3: e
+s1: [ a, b, c ]
+s2: [ [a, b, c], d ]
+t1: { d: e }
   \end{fcllisting}
 \end{minipage}
 
-\noindent Notice that the subscript and member notations can be used
-for the \atlocal keyword in resolving references.  This is true, in
-general, of any of the FHiCL references (see
-section~\ref{sec:qualified}).
+Notice that the subscript and member notations can be used for the
+\atlocal keyword in resolving references.  This is true, in general,
+of any of the FHiCL references (see section~\ref{sec:qualified}).
 
 When a binding processes such a reference, the name is looked up among
 the name-value pairs processed so far, and the corresponding value
@@ -647,12 +653,12 @@ example, the following document:
 %
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-table1: {
+t1: {
    a: 1
    b: [2,3]
 }
-table2: {
-   @table::table1
+t2: {
+   @table::t1
    c: 4
 }
 \end{fcllisting}
@@ -661,11 +667,11 @@ produces the same parameter set as:
 %
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-table1: {
+t1: {
    a: 1
    b: [2,3]
 }
-table2: {
+t2: {
    a: 1      # contents from
    b: [2,3]  # 'table1'
    c: 4
@@ -679,19 +685,19 @@ sequence contents into already-existing sequences.  This document:
 %
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-seq1: [1,2,3]
-seq2: [ @sequence::seq1, 4,5,6]
+s1: [1,2,3]
+s2: [ @sequence::s1, 4,5,6]
 \end{fcllisting}
 %
 is equivalent to this one:
 %
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-seq1: [1,2,3]
-seq2: [1,2,3, 4,5,6]
+s1: [1,2,3]
+s2: [1,2,3, 4,5,6]
 \end{fcllisting}
 
-\section{References and fully-qualified keys}
+\section{References and fully qualified keys}
 \label{sec:qualified}
 
 The above \atlocal, \attable, and \atsequence FHiCL-reference keywords
@@ -700,8 +706,8 @@ document:
 %
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
-tab1: {
-   tab2: {
+t1: {
+   t2: {
       test: 4
       list: [6,5,4]
    }
@@ -716,10 +722,10 @@ syntax (assuming the \fclcode{tab1} definition is visible):
 \Needspace{0.34in}
 \begin{fcllisting}[texcl,escapechar=`]
 t2: {
-   @table::tab1.tab2
-   list: [ @sequence::tab1.tab2.list, 3,2,1 ]
+   @table::t1.t2
+   list: [ @sequence::t1.t2.list, 3,2,1 ]
 }
-a1: @local::tab1.tab2.list[0]
+a1: @local::t1.t2.list[0]
 \end{fcllisting}
 %
 The above document is equivalent to:
@@ -734,7 +740,7 @@ a1: 6
 \end{fcllisting}
 %
 
-Note that a fully-qualified key cannot be used until the definition of
+Note that a fully qualified key cannot be used until the definition of
 the outer-most name is complete.  This means that this document:
 %
 \Needspace{0.34in}
@@ -967,7 +973,7 @@ a @protect_ignore: 3 # error
 \end{fcllisting}
 %
 
-Similarly, a local or fully-qualified override shall honor protection,
+Similarly, a local or fully qualified override shall honor protection,
 whereas a nested replacement shall not. For example:
 %
 \Needspace{0.34in}
