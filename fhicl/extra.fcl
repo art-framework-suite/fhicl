@@ -1,0 +1,6 @@
+BEGIN_PROLOG
+  GlobalTable : { a: 1 b: 2 c: 3 d: 4 }
+  GlobalSeq   : [ 1, 2, 3, 4 ]
+  GlobalMesg  : "Abort, Retry, Continue?"
+  GlobalInt   : 42000000001
+END_PROLOG

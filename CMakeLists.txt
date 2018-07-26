@@ -17,6 +17,8 @@ cet_set_compiler_flags(DIAGS VIGILANT
 
 enable_testing()
 
+subdirs(fhicl)
+
 # testing
 subdirs(tests/pass tests/fail)
 
