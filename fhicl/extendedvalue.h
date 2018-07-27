@@ -1,6 +1,6 @@
 // extendedvalue.h
 // class for fhiclcpp_antlr paramset.h
-// asd
+// 
 //
 #include <map>
 #include <string>
@@ -95,6 +95,7 @@ private:
 	std::cerr << "Tried to overwrite protected value located @ " << _location << " with entry at " << loc << std::endl; 
 	exit(EXIT_FAILURE);
       }
+      default: return false;
     }
   }
 

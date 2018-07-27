@@ -186,9 +186,6 @@ public:
     return visitChildren(ctx);
   }
 
-//  virtual antlrcpp::Any visitIncl(fhiclParser::InclContext *ctx) override {
-//    return visitChildren(ctx);
-//  }
   private:
     bool is_prolog = false;
     paramset config;

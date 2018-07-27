@@ -62,6 +62,7 @@ FIND_PACKAGE(Java COMPONENTS Runtime REQUIRED)
 
 ############ Download and Generate runtime #################
 set(ANTLR4CPP_EXTERNAL_ROOT ${CMAKE_BINARY_DIR}/externals/antlr4cpp)
+message(STATUS "CMAKE_PROJECT_NAME = " ${CMAKE_PROJECT_NAME})
 set(ANTLR4CPP_LOCAL_ROOT ${CMAKE_BINARY_DIR}/locals/antlr4cpp)
 
 # external repository

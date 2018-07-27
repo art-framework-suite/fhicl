@@ -11,11 +11,14 @@
 #include <ostream>
 #include <string>
 
-#include "locals/antlr4cpp/include/antlr4-runtime/antlr4-runtime.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#pragma GCC diagnostic ignored "-Wattributes"
+#include "antlr4cpp/include/antlr4-runtime/antlr4-runtime.h"
 #include "fhicl/fhiclcppantlr/fhiclLexer.h"
 #include "fhicl/fhiclcppantlr/fhiclParser.h"
 #include "fhiclTestVisitor.h"
-
+#pragma GCC diagnostic pop
 //#include "paramset.h"
 
 using namespace antlr4;
@@ -50,14 +53,7 @@ int main(int argc, char *argv[]){
   fhiclParser::ParamsetContext* tree = parser.paramset();
 
   if(debug) std::cout << tree->toStringTree(&parser) << std::endl;
-  /*
-  tree::ParseTree *to_walk = parser.paramset();
-  fhiclListenerTest listener;
-  std::cout << "Listening to the tree" << std::endl;
-  //tree::ParseTreeWalker::DEFAULT.walk(&listener, to_walk);
-  tree::ParseTreeWalker walker; //= new tree::ParseTreeWalker();
-  walker.walk(&listener, to_walk);
-  */
+
   fhiclTestVisitor visitor;
   visitor.visitParamset(tree);
 

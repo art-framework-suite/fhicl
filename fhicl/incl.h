@@ -15,7 +15,11 @@
 #include <fstream>
 #include <stack>
 #include <tuple>
-#include "locals/antlr4cpp/include/antlr4-runtime/antlr4-runtime.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#include "antlr4cpp/include/antlr4-runtime/antlr4-runtime.h"
+#pragma GCC diagnostic pop
 
 std::stack<std::pair<antlr4::CharStream*, int>> filestack;
 
@@ -25,7 +29,7 @@ void setInputCharStream(antlr4::CharStream *input){
 }
 
 inline
-void checkincl(antlr4::RuleContext *context){
+void checkincl(){
   std::string filename = getText();
   filename = filename.substr(10, filename.size()-12); // get only the stuff inside the ""
   std::cout << "Found include statement: " << filename << std::endl;
@@ -39,7 +43,7 @@ void checkincl(antlr4::RuleContext *context){
   }
   antlr4::ANTLRInputStream new_source(new_file);
   int pos = _input->index();
-  antlr4::CharStream *curr_stream = _input;
+  //antlr4::CharStream *curr_stream = _input;
  
   filestack.push(std::make_pair(_input, pos));
   

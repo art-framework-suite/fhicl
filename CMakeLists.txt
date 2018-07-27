@@ -4,6 +4,8 @@ cmake_policy(VERSION 3.4)
 
 project(fhicl CXX)
 
+include_directories(${CMAKE_BINARY_DIR}/locals)
+
 find_package(cetbuildtools REQUIRED)
 
 include(CetCMakeEnv)
