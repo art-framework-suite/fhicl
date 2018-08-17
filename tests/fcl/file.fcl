@@ -1,0 +1,36 @@
+#---------------------------------------
+# Basic FHiCL config for something
+#---------------------------------------
+
+#line 0 
+#file main 
+#include "extra.fcl"
+
+BEGIN_PROLOG
+Global1 : 'Meaning Of Life is Global2' //Its true tho...
+Global2 : 42.42e42
+Global3 : HelloWorld //This should be a string
+END_PROLOG
+
+
+ID1 : @local::Global1
+ID2 @protect_error: @local::Global2
+ID3 @protect_ignore : [ 1, 2, 3, [3,2,1] ]
+
+Test1: false
+Test2: "true"
+Test3: False
+
+String1: 'asdfljuireas asdfhjaosij \'Hello\' asdf'
+String2: "Ask Evelyn,"
+String3: What
+
+Table1: { 
+  entry1: hellohowareyou
+  entry2: kthxbye
+}
+
+ADC01CN : 0x43a7
+MASK1   : 0b01000010010011000 //Is it me? Is it you?
+
+Table1.entry1 :"asdf"
