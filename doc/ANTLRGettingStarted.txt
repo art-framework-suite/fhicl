@@ -1,0 +1,9 @@
+Getting ANTLR to compile:
+  This is assuming ANTLR is installed properly (with the .jar and the C++ runtime)
+  Find ExternalAntlr4Cpp.cmake and move it to the source directory in a folder called cmake.
+  With your cmake files, add the snippet from ExternalAntlr4Cpp.cmake to your main CMakeLists.txt
+  This should link the cmake macro that generates the ANTLR4 files. 
+  
+Test FHiCL files
+  In tests/fcl are two files, file.fcl and extra.fcl
+  Move these into the same directory as the generated binary and execute passing file.fcl
