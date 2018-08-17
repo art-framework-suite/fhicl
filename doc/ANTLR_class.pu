@@ -1,0 +1,42 @@
+@startuml
+class fhiclTestVisitor{
+	-bool is_prolog
+	-intermTable config
+	-value_tag curr_type
+	-protection_tag curr_prot
+	-std::any curr_value
+	-std::string curr_loc
+	-std::string curr_file
+	-extendedvalue curr_entry
+	-std::stack<intermTable> scoping
+
+	+antlrcpp::Any visit[parserule](fhiclParser::[parserule]Context *ctx)
+}
+note "[parserule] is the set of all parser rule names in the grammar. \nIf a rule has named alternatives, the original rule name is \nreplaced by the names for the alternatives." as N1
+class fhiclVisitor{
+	+virtual antlrcpp::Any visit[parserule](fhiclParser::[parserule]Context *ctx) = 0
+}
+class AbstractParseTreeVisitor{
+	+antlrcpp::Any visit(ParseTree *node)
+	+antlrcpp::Any visitChildren(ParseTree *node)
+	+antlrcpp::Any visitTerminal(TerminalNode *node)
+	+antlrcpp::Any visitError(ErrorNode *node)
+	#antlrcpp::Any defaultResult()
+	#antlrcpp::Any aggregateResult(antlrcpp::Any aggreagate)
+	#bool shouldVisitNextChild(ParseTree *node)
+}
+class ParseTreeVisitor{
+	+antlrcpp::Any visit(ParseTree *tree)
+	+antlrcpp::Any visitChildren(ParseTree *node)
+	+antlrcpp::Any visitTerminal(TerminalNode *node)
+	+antlrcpp::Any visitErrorNode(ErrorNode *node)
+}
+
+ParseTreeVisitor o-- AbstractParseTreeVisitor
+AbstractParseTreeVisitor o--fhiclVisitor 
+fhiclVisitor o-- fhiclTestVisitor
+
+
+N1 .. fhiclVisitor
+fhiclTestVisitor .. N1
+@enduml

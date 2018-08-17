@@ -3,6 +3,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wattributes"
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include "fhiclBaseVisitor.h"
 #pragma GCC diagnostic pop
 

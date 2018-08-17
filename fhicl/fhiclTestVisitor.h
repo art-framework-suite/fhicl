@@ -6,12 +6,8 @@
 #define debug_visitor 1
 #endif
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include "antlr4-runtime.h"
 #include "fhiclVisitor.h"
-
-#pragma GCC diagnostic pop
 
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"

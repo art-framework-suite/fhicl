@@ -1,0 +1,155 @@
+@startuml
+class fhiclLexer{
+	+enum
+	+virtual std::string getGrammarFileName() const override
+	+virtual const std::vector<std::string>& getRuleNames() const override
+	+virtual const std::vector<std::string>&getModeNames() const override
+	+virtual const std::vector<std::string>& getRuleNames() DEPRECIATED
+	+virtualantlr4:dfa::Vocabulary& getVocabulary() const override
+	+virtual const std::vector<uint16_t> getSerializedATN() const override
+	+virtual const antlr4::atn::ATN& getATN() const override
+	+void action(antlr4::RuleContext *context, size_t ruleIndex, size_t actionIndex)
+
+	-static std::vector<antlr4::dfa::DFA> _decisionToDFA
+	-static std::vector<std::string> _ruleNames
+	-static std::vector<std::string> _tokenNames
+	-static std::vector<std::string> _channelNames
+	-static std::vector<std::string> _modeNames
+
+	-static std::vector<std::string> _literalNames
+	-static std::vector<std::string> _symbolicNames
+	-static antlr4::dfa::Vocabulary _vocabulary
+	-static antlr4::atn::ATN _atn
+	-static std::vector<uint16_t> _serailizedATN
+
+	-LexerActions(antlr4::RuleContect *context, size_t actionIndex) NOTE
+
+	-static Initializer _init
+}	
+class Lexer{
+	+static const size_t DEFAULT_MODE
+	+static const size_t MORE
+	+static const size_t SKIP
+	+static const size_t DEFUALT_TOKEN_CHANNEL
+	+static const size_t HIDDEN
+	+static const size_t MIN_CHAR_VALUE
+	+static const size_t MAX_CHAR_VALUE
+	+CharStream *_input
+	#Ref<TokenFactory<CommonToken>> _factory
+	+std::unique_ptr<Token> token
+	+size_t tokenStartCharIndex
+	+size_t tokenStartLine
+	+size_t tokenStartCharPositionInLine
+	+bool hitEOF
+	+size_t channel
+	+size_t type
+	+size_t mode
+
+	+Lexer()
+    +Lexer(CharStream *input)
+    +virutal ~Lexer() 
+    +virutal void reset()
+    +virutal std::unique_ptr<Token> nextToken() override
+    +virutal void skip()
+    +virutal void more()
+    +virutal void setMode(size_t m)
+    +virutal void pushMode(size_t m)
+    +virutal size_t popMode()
+    +void setTokenFactory(TokenFactory<T1> *factory)
+    +virutal Ref<TokenFactory<CommonToken>> getTokenFactory() override
+    +virutal void setInputStream(IntStream *input) override
+    +virutal std::string getSourceName() override
+    +virutal CharStream* getInputStream() override
+    +virutal void emit(std::unique_ptr<Token> newToken)
+    +virutal Token* emit()
+    +virutal Token* emitEOF()
+    +virutal size_t getLine() const override
+    +virutal size_t getCharPositionInLine() override
+    +virutal void setLine(size_t line)
+    +virutal void setCharPositionInLine(size_t charPositionInLine)
+    +virutal size_t getCharIndex()
+    +virutal std::string getText()
+    +virutal void setText(const std::string &text)
+    +virutal std::unique_ptr<Token> getToken()
+    +virutal void setToken(std::unique_ptr<Token> newToken)
+    +virutal void setType(size_t ttype)
+    +virutal size_t getType()
+    +virutal void setChannel(size_t newChannel)
+    +virutal size_t getChannel()
+    +virutal const std::vector<std::string>& getChannelNames() const = 0
+    +virutal const std::vector<std::string>& getModeNames() const = 0
+    +virutal std::vector<std::unique_ptr<Token>> getAllTokens()
+    +virutal void recover(const LexerNoViableAltException &e)
+    +virutal void notifyListeners(const LexerNoViableAltException &e)
+    +virutal std::string getErrorDisplay(const std::string &s)
+    +virutal void recover(RecognitionException *re)
+    +virutal size_t getNumberOfSyntaxErrors()
+
+	#std::string _text
+    -size_t _syntaxErrors
+    -void InitializeInstanceFields()
+}
+
+class Recognizer{
+    +static const size_t EOF = static_cast<size_t>(-1)
+
+    +Recognizer()
+    +Recognizer(Recognizer const&) = delete
+    +virtual ~Recognizer()
+    +Recognizer& operator=(Recognizer const&) = delete
+    +virutal std::vector<std::string> const& getTokenNames() static = 0
+    +virtual std::vector<std::string> const& getRuleNames() static = 0
+    +virtual dfa::Vocabulary const& getVocabulary() const
+    +virtual std::map<std::string, size_t> getTokenTypeMap()
+    +virtual std::map<std::string, size_t> getRuleIndexMap()
+    +virtualsize_t getTokenType(const std::string &tokenName)
+    +virutal std::vector<uint16_t> getSerializedATN() const
+    +virtual std::string getGrammarFileName() const = 0
+    +T* getInterpreter()
+    +void setInterpreter(atn::ATNSimulator *interpreter)
+    +virtual std::string getErrorHeader(RecognitionException *e)
+    +virutal std::string getTokenErrorDisplay(Token *t)
+    +virutal void addErrorListener(ANTLRErrorListener *listener)
+    +virutal void removeErrorListener(ANTLRErrorListener *listener)
+    +virutal void removeErrorListeners()
+    +virutal ProxyErrorListener& getErrorListenerDispatch()
+    +virutal bool sempred(RuleContext *localctx, size_t ruleIndex, size_t actionIndex)
+    +virutal bool precpred(RuleContext *localctx, int precedence)
+    +virutal void action(RuleContext *localctx, size_t ruleIndex, size_t actionIndex)
+
+    +virutal size_t getState() const
+    +virutal const atn::ATN& getATN() const = 0
+
+    +void setState(size_t atnState)
+    +virutal IntStream* getInputStream() = 0
+    +virutal void setInputStream(IntStream *input) = 0
+    +virutal Ref<TokenFactory<CommonToken>> getTokenFactory() = 0
+    +void setTokenFactory(TokenFactory<T1> *input);
+
+    #atn::ATNSimulator *_interpreter
+    #std::mutex _mutex
+
+  private:
+    -static std::map<const dfa::Vocabulary*, std::map<std::string, size_t>> _tokenTypeMapCache
+    -static std::map<std::vector<std::string>, std::map<std::string, size_t>> _ruleIndexMapCache
+    -ProxyErrorListener _proxListener
+    -size_t _stateNumber
+    -void InitializeInstanceFields()
+
+}
+class TokenSource{
+	+virtual ~TokenSource()
+    +virtual std::unique_ptr<Token> nextToken() = 0
+    +virtual size_t getLine() const = 0
+    +virtual size_t getCharPositionInLine() = 0
+    +virtual CharStream* getInputStream() = 0
+    +virtual std::string getSourceName() = 0
+    +void setTokenFactory(TokenFactory<T1> * factory) () UNUSED
+    +virtual Ref<TokenFactory<CommonToken>> getTokenFactory() = 0
+}
+note "You can add additional member variables and functions\nto the generated lexer through the grammar." as N1
+TokenSource o- Lexer
+Recognizer o- Lexer
+Lexer o- fhiclLexer
+N1 .. fhiclLexer
+@enduml

@@ -1,0 +1,96 @@
+
+digraph test{
+	label = "Parsing result of 'A:cow B:pig'"
+
+	e1 [label="entry"];
+	WS[shape="square", color="grey38"];
+	e2 [label="entry"];
+	ID1 [label="ID"];
+	ID2 [label="ID"];
+	div1 [label=":", shape="square", color="grey38"];
+	div2 [label=":", shape="square", color="grey38"];
+	val1 [label="val"];
+	val2 [label="val"];
+	atom1 [label="atom"];
+	atom2 [label="atom"];
+	IntermTable -> e1 -> { ID1 , div1, val1 }
+	ID1 -> A
+	val1 -> atom1 -> cow
+	IntermTable -> WS
+	IntermTable -> e2  -> { ID2 , div2, val2 }
+	ID2 -> B
+	val2 -> atom2 -> pig
+}
+/*
+digraph prolog{
+	label = "Parsing a prolog"
+	ID;
+	div [label=":", shape="square", color="grey38"];
+	val;
+	BEGIN_PROLOG [shape="square", color="grey38"];
+	entry;
+	END_PROLOG [shape="square", color="grey38"];
+	IntermTable -> {BEGIN_PROLOG, entry, END_PROLOG}
+	entry -> {ID, div, val}
+	ID -> Global1
+	val -> atom -> 42
+}
+/*
+digraph table{
+	label = "Parsing result of 'A:{a:1 b:2}'"
+
+	ID;
+	div [label=":", shape="square", color="grey38"];
+	val;
+
+	open [label="{", shape="square", color="grey38"];
+	entry1 [label="entry"];
+	ID1 [label="ID"];
+	div1 [label=":", shape="square", color="grey38"];
+	val1 [label="val"];
+	atom1 [label="atom"];
+	sep [label="WS", shape="square", color="grey38"];
+	entry2 [label="entry"];
+	ID2 [label="ID"];
+	div2 [label=":", shape="square", color="grey38"];
+	val2 [label="val"];
+	atom2 [label="atom"];
+	close [label="}", shape="square", color="grey38"];
+	IntermTable -> entry -> {ID, div, val}
+	ID -> A
+	val -> {open, entry1, sep,  entry2, close}
+	entry1 -> {ID1, div1, val1}
+	ID1 -> a
+	val1 -> atom1 -> 1
+	entry2 -> {ID2, div2, val2}
+	ID2 -> b
+	val2 -> atom2 -> 2
+}
+/*
+digraph sequence{
+	label = "Parsing result of 'Seq:[1, 2, 3]'"
+
+	ID;
+	div [label=":", shape="square", color="grey38"];
+	val;
+
+	open [label="[", shape="square", color="grey38"];
+
+	val1 [label="val"];
+	atom1 [label="atom"];
+	sep [label="\",\"", shape="square", color="grey38"];
+	ws1 [label="WS", shape="square", color="grey38"];
+	val2 [label="val"];
+	atom2 [label="atom"];
+	sep2 [label="\",\"", shape="square", color="grey38"];
+	ws2 [label="WS", shape="square", color="grey38"];
+	val3 [label="val"];
+	atom3 [label="atom"];
+	close [label="]", shape="square", color="grey38"];
+	IntermTable -> entry -> {ID, div, val}
+	ID -> Seq
+	val -> {open, val1, sep, ws1, val2, sep2, ws2, val3, close}
+	val1 -> atom1 -> 1
+	val2 -> atom2 -> 2
+	val3 -> atom3 -> 3
+}
