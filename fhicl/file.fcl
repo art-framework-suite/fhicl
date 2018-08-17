@@ -12,20 +12,20 @@ END_PROLOG
 
 
 ID1 : @local::Global1
-ID2 @Protect_Error: @local::Global2
-ID3 @Protect_Ignore : [1, 2, 3]
+ID2 @protect_error: @local::Global2
+ID3 @protect_ignore : [ 1, 2, 3, [3,2,1] ]
 
 Test1: false
 Test2: "true"
 Test3: False
 
 String1: 'asdfljuireas asdfhjaosij \'Hello\' asdf'
-String2: "This \"work\" thing"
+String2: "Ask Evelyn,"
 String3: What
 
 Table1: { 
   entry1: hellohowareyou
-  entry2: bonbonfire
+  entry2: kthxbye
 }
 
 ADC01CN : 0x43a7

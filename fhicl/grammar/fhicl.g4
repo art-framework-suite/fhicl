@@ -2,11 +2,9 @@ grammar fhicl;
 
 @lexer::members{ 
   #include "fhicl/incl.h"
-
 }
 
-
-paramset: ((COMM|INCL) (NL|WS)* )* prolog? (NL|WS)* ((entry|COMM|INCL) (NL|WS)* )* ;
+intermTable: ((COMM|dir) (NL|WS)* )* prolog? (NL|WS)*  ((entry|COMM|dir) (NL|WS)* )* ;
 
 prolog	: 'BEGIN_PROLOG' (NL|WS)* ((entry|COMM) (NL|WS)* )* 'END_PROLOG' ; 
 
@@ -16,14 +14,19 @@ entry 	: ID WS* (PRO_ERR | PRO_IGN)? WS* ':' WS* val WS* (COMM)? #RegularEntry
       	| TAB ID				      #EntryFusion
       	;
 
-val     : atom	  #ValueAtom
-	| seq	  #ValueSeqence
-	| table	  #ValueTable
-	| valref  #ValueReferenced
-	| ERASE	  #ValueErased
+dir	: INCL	#incl
+	| LINE	#line
+	| FILE  #file
 	;
 
-valref	: (TAB | REF | EXTERN) ID ;
+val     : atom	    #ValueAtom
+	| seq	    #ValueSequence
+	| table	    #ValueTable
+ 	| EXTERN    #ValueExternal
+	| ERASE	    #ValueErased
+	| REF STRNG #ValueDB
+	| LOCAL ID  #ValueLocal
+	;
 
 seq	: '[' (NL|WS)* val  (',' (NL|WS)* val)* (NL|WS)* ']' 
 	| '[' (NL|WS)* ']'
@@ -36,27 +39,31 @@ atom  	: INT		#IntegerAtom
 	| comp		#ComplexAtom
 	| BOOL		#BoolAtom
 	| STRNG		#StringAtom
-	| ID		#IdAtom	      //because antlr (It's actually a string)
-	| SPVAL		#SpecialValue
+	| ID		#IdAtom	      //It's actually a string
 	| INFTY		#InfinityAtom
 	| NINFTY	#NegInfinityAtom
 	;
 
-comp 	: '(' WS* (INT | FLOAT ) WS* ',' WS* (INT | FLOAT) WS* ')' ;
+comp 	: '(' WS* real WS* ',' WS* imaginary WS* ')' ;
+real	 : (INT|FLOAT) ;
+imaginary: (INT|FLOAT) ;
 
 //Tags
 TAB	: '@table::' ;
 SEQ	: '@sequence::' ; 
-REF	: '@local::' | '@db::' ;
-EXTERN	: '@id::' ;
-SPVAL	: '@nil'   | '@infinity' ;
-PRO_IGN	: '@'[Pp]'rotect_'[Ii]'gnore' ;
-PRO_ERR	: '@'[Pp]'rotect_'[Ee]'rror' ;
+LOCAL	: '@local::' ;
+REF	: '@db::' ;
+EXTERN	: '@id::' [0-9a-zA-Z]+ ;
+NIL	: '@nil'  ;
+PRO_IGN	: '@protect_ignore' ;
+PRO_ERR	: '@protect_error' ;
 ERASE	: '@erase' ;
+LINE	: '#line ' .*? WS* NL ;
+FILE	: '#file ' .*? WS* NL ;
+INCL	: '#include "' .*? '"' WS* NL {if(LEXER_INCL){checkincl(context);}} ;
 
-INCL	: '#include "'  .*? '"' NL {checkincl(context); /*execute include code from incl.h*/} ;
-//hopefully this doesnt catch includes...
-COMM	: ('//' | '#') .*? NL 
+COMM	: '//' .*? NL
+	| '#' .*? NL
 	| '/*' .*? '*/'
 	;
 
@@ -65,13 +72,6 @@ BOOL 	: '"' [Tt]'rue' '"'
 	| [Tt]'rue' 
 	| '"'[Ff]'alse' '"' 
 	| [Ff]'alse' 
-	;
-
-ID	: ALPH (ALPH|DIGIT)* ('.'ID)* ;
-
-STRNG  	: '\'' ( '\\\'' | . )*? '\''	
-     	| '"' ( '\\"' | . )*? '"' 
-     	| ALPH ~[:@{}()[\] \n]+
 	;
 
 FLOAT 	: INT '.' INT (('e'|'E') INT)? 
@@ -85,6 +85,13 @@ INT  	: SIGN? DIGIT+ ;
 
 INFTY	: '+'? ('i' | 'I' ) 'nfinity' ;
 NINFTY 	: '-' ('i' | 'I' ) 'nfinity' ;
+
+ID	: ALPH (ALPH|DIGIT)* ('.'ID)* ;
+
+STRNG  	: '\'' ( '\\\'' | . )*? '\''	
+     	| '"'  ( '\\"'  | . )*? '"' 
+     	| ALPH ~[:@{}()[\] \r\n]+
+	;
 
 //Lexer tools
 fragment
@@ -104,4 +111,4 @@ LB	: '[' ;
 NL   	: '\r'? '\n' ;
 WS   	: [ \t] ;
 
-FIN	: EOF {checkstack(); } ;
+FIN	: EOF {if(context){}; if(LEXER_INCL) checkstack(); } ;

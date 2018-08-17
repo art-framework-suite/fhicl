@@ -3,7 +3,7 @@
 # This Cmake file is for those using a superbuild Cmake Pattern, it
 # will download the tools and build locally
 #
-# use 2the antlr4cpp_process_grammar to support multiple grammars in the
+# use the antlr4cpp_process_grammar to support multiple grammars in the
 # same project
 #
 # - Getting quicky started with Antlr4cpp
@@ -52,7 +52,7 @@
 #
 ###############################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12.2)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
 PROJECT(antlr4cpp_fetcher CXX)
 INCLUDE(ExternalProject)
 FIND_PACKAGE(Git REQUIRED)
@@ -99,7 +99,7 @@ ExternalProject_ADD(
   #--Patch step----------
   # PATCH_COMMAND sh -c "cp <SOURCE_DIR>/scripts/CMakeLists.txt <SOURCE_DIR>"
   #--Configure step-------------
-  CONFIGURE_COMMAND  ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DANTLR4CPP_JAR_LOCATION=${ANTLR4CPP_JAR_LOCATION} -DBUILD_SHARED_LIBS=ON -BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DCMAKE_SOURCE_DIR:PATH=<SOURCE_DIR>/runtime/Cpp <SOURCE_DIR>/runtime/Cpp
+  CONFIGURE_COMMAND  ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DANTLR4CPP_JAR_LOCATION=${ANTLR4CPP_JAR_LOCATION} -DBUILD_SHARED_LIBS=ON -BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DCMAKE_SOURCE_DIR:PATH=<SOURCE_DIR>/runtime/Cpp <SOURCE_DIR>/runtime/Cpp
   LOG_CONFIGURE ON
   #--Build step-----------------
   # BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
@@ -113,12 +113,45 @@ ExternalProject_ADD(
 
 ExternalProject_Get_Property(antlr4cpp INSTALL_DIR)
 
+
 list(APPEND ANTLR4CPP_INCLUDE_DIRS ${INSTALL_DIR}/include/antlr4-runtime)
 foreach(src_path misc atn dfa tree support)
   list(APPEND ANTLR4CPP_INCLUDE_DIRS ${INSTALL_DIR}/include/antlr4-runtime/${src_path})
 endforeach(src_path)
 
 set(ANTLR4CPP_LIBS "${INSTALL_DIR}/lib")
+#[[
+set(INSTALL_DIR "${PROJECT_SOURCE_DIR}/thirdparty")
+list(APPEND ANTLR4CPP_INCLUDE_DIRS ${INSTALL_DIR})
+foreach(src_path misc atn dfa support tree tree/pattern tree/xpath)
+  list(APPEND ANTLR4CPP_INCLUDE_DIRS ${INSTALL_DIR}/antlr4cpp/${src_path})
+endforeach(src_path)
+
+set(ANTLR4CPP_LIBS "${INSTALL_DIR}/lib")
+
+file(GLOB libantlrcpp_src
+  "${INSTALL_DIR}/antlr4cpp/*.cpp"
+  "${INSTALL_DIR}/antlr4cpp/misc/*.cpp"
+  "${INSTALL_DIR}/antlr4cpp/atn/*.cpp"
+  "${INSTALL_DIR}/antlr4cpp/dfa/*.cpp"
+  "${INSTALL_DIR}/antlr4cpp/support/*.cpp"
+  "${INSTALL_DIR}/antlr4cpp/tree/*.cpp"
+  "${INSTALL_DIR}/antlr4cpp/tree/pattern/*.cpp"
+  "${INSTALL_DIR}/antlr4cpp/tree/xpath/*.cpp"
+)
+
+add_library(antlr4_shared SHARED ${libantlrcpp_src})
+add_library(antlr4_static STATIC ${libantlrcpp_src})
+
+
+
+add_custom_target(make_lib_ouput_dir ALL
+  COMMAND ${CMAKE_COMMAND} -E make_directory $ANTLR4CPP_LIBS}
+  )
+
+#add_dependencies(antlr4_shared make_lib_output_dir)
+#add_dependencies(antlr4_static make_lib_output_dir)
+]]
 
 # antlr4_shared ${INSTALL_DIR}/lib/libantlr4-runtime.so
 # antlr4_static ${INSTALL_DIR}/lib/libantlr4-runtime.a
@@ -126,7 +159,7 @@ set(ANTLR4CPP_LIBS "${INSTALL_DIR}/lib")
 ############ Generate runtime #################
 # macro to add dependencies to target
 #
-# Param 1 project name
+# Param 0 project name
 # Param 1 namespace (postfix for dependencies)
 # Param 2 Lexer file (full path)
 # Param 3 Parser File (full path)
@@ -153,7 +186,7 @@ macro(antlr4cpp_process_grammar
     COMMAND
     ${CMAKE_COMMAND} -E make_directory ${ANTLR4CPP_GENERATED_SRC_DIR}
     COMMAND
-    "${Java_JAVA_EXECUTABLE}" -jar "${ANTLR4CPP_JAR_LOCATION}" -Werror -Dlanguage=Cpp -listener -visitor -o "${ANTLR4CPP_GENERATED_SRC_DIR}/${antlr4cpp_project_namespace}" -package ${antlr4cpp_project_namespace} "${antlr4cpp_grammar_lexer}" "${antlr4cpp_grammar_parser}"
+    "${Java_JAVA_EXECUTABLE}" -jar "${ANTLR4CPP_JAR_LOCATION}" -Werror -Dlanguage=Cpp -no-listener -visitor -o "${ANTLR4CPP_GENERATED_SRC_DIR}/${antlr4cpp_project_namespace}" -package ${antlr4cpp_project_namespace} "${antlr4cpp_grammar_lexer}" "${antlr4cpp_grammar_parser}"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     DEPENDS "${antlr4cpp_grammar_lexer}" "${antlr4cpp_grammar_parser}"
     )
@@ -174,6 +207,7 @@ macro(antlr4cpp_process_grammar
 
   # export generated include directory
   set(antlr4cpp_include_dirs_${antlr4cpp_project_namespace} ${ANTLR4CPP_GENERATED_SRC_DIR}/${antlr4cpp_project_namespace})
+
   message(STATUS "Antlr4Cpp ${antlr4cpp_project_namespace} include: ${ANTLR4CPP_GENERATED_SRC_DIR}/${antlr4cpp_project_namespace}")
 
 endmacro()
